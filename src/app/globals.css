@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+/*
+  Palette: committed marigold on warm paper, with ink tinted toward the same hue.
+  Each venture keeps a color lifted from its own identity.
+*/
+@theme {
+  --color-paper: oklch(0.974 0.009 85);
+  --color-paper-2: oklch(0.942 0.014 82);
+  --color-ink: oklch(0.205 0.018 55);
+  --color-ink-soft: oklch(0.43 0.02 60);
+  --color-line: oklch(0.205 0.018 55 / 0.14);
+
+  --color-marigold: oklch(0.83 0.155 78);
+  --color-marigold-deep: oklch(0.72 0.16 65);
+
+  --color-ads: oklch(0.7 0.155 38);
+  --color-interiors: oklch(0.42 0.055 350);
+  --color-interiors-soft: oklch(0.88 0.03 350);
+  --color-foundation: oklch(0.43 0.075 240);
+  --color-foundation-soft: oklch(0.88 0.035 230);
+
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --text-headline: clamp(2.5rem, 6.4vw, 5.75rem);
+}
+
+@layer base {
+  html {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    background: var(--color-paper);
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--color-marigold);
+    color: var(--color-ink);
+  }
+
+  /* A marigold highlight vanishes on warm surfaces; select in ink there instead. */
+  :is(.bg-marigold, .bg-ads) ::selection,
+  :is(.bg-marigold, .bg-ads)::selection {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  /* Ink buttons sitting on marigold keep the marigold highlight. */
+  .bg-ink ::selection,
+  .bg-ink::selection {
+    background: var(--color-marigold);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+}
+
+@utility font-display {
+  font-family: var(--font-sans);
+  font-stretch: 72%;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 0.86;
+}
+
+@utility font-condensed {
+  font-stretch: 82%;
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Intro elements wait for GSAP; the fallback reveals them if scripts never run. */
+html.motion [data-reveal] {
+  visibility: hidden;
+  animation: reveal-fallback 0s linear 3s forwards;
+}
+@keyframes reveal-fallback {
+  to {
+    visibility: visible;
+  }
+}
+
+/* SplitText masks: lines slide up from behind their own edge. */
+.split-line {
+  overflow: clip;
+  padding-bottom: 0.06em;
+  margin-bottom: -0.06em;
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+/* Range input, styled once for the calculator. */
+.range {
+  appearance: none;
+  width: 100%;
+  height: 2.75rem;
+  background: transparent;
+  cursor: pointer;
+  --fill: 50%;
+}
+.range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--color-ink) var(--fill), var(--color-line) var(--fill));
+}
+.range::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--color-ink) var(--fill), var(--color-line) var(--fill));
+}
+.range::-webkit-slider-thumb {
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -9px;
+  border-radius: 999px;
+  background: var(--color-marigold);
+  border: 3px solid var(--color-ink);
+  transition: transform 200ms var(--ease-out-expo);
+}
+.range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--color-marigold);
+  border: 3px solid var(--color-ink);
+}
+.range:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+}
+.range:focus-visible {
+  outline-offset: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
