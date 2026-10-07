@@ -15,12 +15,14 @@ function landing(id: string, target: HTMLElement) {
   return target.getBoundingClientRect().top + window.scrollY;
 }
 
-// Scroll to a section with a fixed-length glide, so long jumps across the page don't
-// drift through half-built sections. Motion-sensitive visitors jump straight there.
-export function scrollToSection(id: string, lenis: Lenis | undefined) {
-  const target = document.getElementById(id);
-  if (!target) return;
-  const y = landing(id, target);
+// Scroll to a point with a fixed-length glide, so long jumps across the page don't drift
+// through half-built sections. Motion-sensitive visitors jump straight there.
+export function glideTo(y: number, lenis: Lenis | undefined) {
   if (lenis && window.matchMedia(MOTION_OK).matches) lenis.scrollTo(y, { duration: 1.4, easing: easeInOutQuint });
   else window.scrollTo({ top: y });
+}
+
+export function scrollToSection(id: string, lenis: Lenis | undefined) {
+  const target = document.getElementById(id);
+  if (target) glideTo(landing(id, target), lenis);
 }

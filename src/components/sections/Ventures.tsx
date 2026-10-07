@@ -1,143 +1,105 @@
 "use client";
 
 import { useLenis } from "lenis/react";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { site, type Venture } from "@/content/site";
-import { gsap, MOTION_OK, ScrollTrigger, useGSAP } from "@/lib/gsap";
-import { Button } from "./Button";
-import { RevealHeading } from "./Reveal";
+import { gsap, MOTION_OK, type ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { glideTo } from "@/lib/navigate";
+import { Button } from "@/components/ui/Button";
+import { Headline } from "@/components/ui/Headline";
 
+// above: the colour showing through the trimmed corner, and how strong the shadow cast on
+// it is. --edge-shade-own: the shadow cast on this sheet by the one that covers it.
 const themes = {
-  ads: { panel: "bg-ads text-ink", soft: "text-ink/70", rule: "border-ink/25" },
+  ads: {
+    panel: "bg-ads text-ink [--edge-shade-own:var(--edge-shade-mid)]",
+    soft: "text-ink/70",
+    above: "[--notch:var(--color-paper)]",
+  },
   interiors: {
-    panel: "bg-interiors text-paper",
+    panel: "bg-interiors text-paper [--edge-shade-own:var(--edge-shade-mid)]",
     soft: "text-interiors-soft",
-    rule: "border-paper/25",
+    above: "[--notch:var(--color-ads)] [--edge-shade:var(--edge-shade-mid)]",
   },
   foundation: {
     panel: "bg-foundation text-paper",
     soft: "text-foundation-soft",
-    rule: "border-paper/25",
+    above: "[--notch:var(--color-interiors)] [--edge-shade:var(--edge-shade-mid)]",
   },
 } as const;
 
-// Easing for the glide onto the next panel.
-const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2);
+// The intro and the three ventures are stacked sheets. On desktop each one sticks to the
+// top of the screen and the next slides up over it, like pages in a briefing folder; the
+// sheet being covered sinks back and dims. It's all ordinary scrolling (CSS sticky), so
+// nothing takes over the wheel or snaps, and a trackpad, wheel or keyboard all feel the same.
+// Clipped below and at the sides, but not just above the top edge, where its shadow falls.
+const sheet = "lg:motion-safe:sticky lg:motion-safe:top-0 lg:motion-safe:h-lvh lg:motion-safe:overflow-x-clip";
+// On desktop each venture's trimmed corner is cut for real, so the sheet underneath shows
+// through as it slides over. Elsewhere the notch utility paints the colour above instead.
+// The cut's size follows the same variables as the painted corner (globals.css), so it
+// folds in on arrival and folds shut once the sheet is covered.
+// The clip reaches up past the top edge for the edge's shadow, mitred where the cut begins.
+const notch =
+  "lg:motion-safe:[--cut:calc(var(--notch-size)*var(--notch-in,1)*(1-var(--notch-shut,0)))] lg:motion-safe:[clip-path:polygon(0_calc(-1*var(--notch-lift)),calc(100%-var(--cut)+var(--notch-lift)*0.4142)_calc(-1*var(--notch-lift)),calc(100%-var(--cut))_0,100%_var(--cut),100%_100%,0_100%)]";
+// The intro has no real cut, only room for the shadow above.
+const introClip =
+  "lg:motion-safe:[clip-path:polygon(0_calc(-1*var(--notch-lift)),100%_calc(-1*var(--notch-lift)),100%_100%,0_100%)]";
+// A real cut has no painted corner to carry its edge's shadow, so each sheet draws that
+// part for the sheet sliding over it (notch-corner-shadow, in its own top-right), moved down
+// to sit right under the arriving sheet's cut (--beneath-y, its distance from the top) and
+// travelling up with it. Until a sheet arrives it waits below the bottom edge, out of sight.
+// The straight part of the edge's shadow is the arriving sheet's own (notch, globals.css).
+const shadowBeneath =
+  "notch-corner-shadow pointer-events-none absolute right-0 z-1 hidden [--edge-shade:var(--edge-shade-own,var(--edge-shade-soft))] top-[calc(-1*var(--notch-lift))] [translate:0_var(--beneath-y,100lvh)] lg:motion-safe:block";
 
 export function Ventures() {
   const root = useRef<HTMLElement>(null);
-  const track = useRef<HTMLDivElement>(null);
-  const lenis = useLenis();
-  const lenisRef = useRef(lenis);
-  useEffect(() => {
-    lenisRef.current = lenis;
-  }, [lenis]);
 
   useGSAP(
     () => {
+      const q = gsap.utils.selector(root);
       const mm = gsap.matchMedia();
 
-      // Desktop: pin the section and walk sideways from the intro through the three panels.
       mm.add(`(min-width: 1024px) and ${MOTION_OK}`, () => {
-        const el = track.current!;
-        const distance = () => el.scrollWidth - window.innerWidth;
-        const slide = gsap.to(el, {
-          x: () => -distance(),
-          ease: "none",
-          scrollTrigger: {
-            trigger: el,
-            pin: true,
-            scrub: 0.6,
-            end: () => `+=${distance()}`,
-            invalidateOnRefresh: true,
-          },
+        const sheets = q("[data-sheet]");
+        // While the next sheet slides up, the one beneath shrinks back a little and dims. And
+        // over the last stretch its trimmed corner folds shut: the stuck sheets share one
+        // corner, so once the new sheet settles, its own cut shows this sheet's colour rather
+        // than looking straight through every sheet below to the intro's corner.
+        sheets.slice(0, -1).forEach((el, i) => {
+          gsap.fromTo(
+            el,
+            { "--notch-shut": 0 },
+            {
+              "--notch-shut": 1,
+              ease: "none",
+              scrollTrigger: { trigger: sheets[i + 1], start: "top 15%", end: "top top", scrub: true },
+            },
+          );
+          gsap
+            .timeline({
+              defaults: { ease: "none" },
+              scrollTrigger: {
+                trigger: sheets[i + 1],
+                start: "top bottom",
+                end: "top top",
+                scrub: true,
+                invalidateOnRefresh: true, // the shadow starts a screen down
+              },
+            })
+            .to(el.querySelector("[data-sheet-body]"), { scale: 0.92, yPercent: -3, transformOrigin: "50% 0%" }, 0)
+            .to(el.querySelector("[data-shade]"), { opacity: 0.35 }, 0)
+            .fromTo(el, { "--beneath-y": () => `${window.innerHeight}px` }, { "--beneath-y": "0px" }, 0);
         });
+        // Each drawing plays once its sheet is most of the way up.
         animateArt((panel) => ({
           trigger: panel,
-          containerAnimation: slide,
-          start: "left 8%",
+          start: "top 25%",
           toggleActions: "play none none reverse",
         }));
-
-        const st = slide.scrollTrigger!;
-        const steps = el.children.length - 1;
-        const yFor = (index: number) => st.start + (index / steps) * (st.end - st.start);
-        // Inside the sideways run, counting its first and last panel positions as inside
-        // (ScrollTrigger's isActive is false exactly on the boundaries we snap to).
-        const inside = () => window.scrollY >= st.start - 2 && window.scrollY <= st.end + 2;
-        const glideTo = (index: number, onDone?: () => void) => {
-          const lenis = lenisRef.current;
-          if (lenis) lenis.scrollTo(yFor(index), { duration: 0.9, easing: easeInOutCubic, onComplete: onDone });
-          else {
-            window.scrollTo({ top: yFor(index), behavior: "smooth" });
-            setTimeout(() => onDone?.(), 900);
-          }
-        };
-
-        // One wheel gesture = one panel. Inside the section, the first wheel event of a
-        // gesture moves straight to the next (or previous) panel; the rest of that gesture
-        // (a fast flick of the wheel, or trackpad momentum) is swallowed so it can't skip
-        // ahead. Events closer than 250ms apart count as one gesture. Caught in the capture
-        // phase so Lenis never sees them. At either end the wheel passes through, so you can
-        // scroll out of the section as normal.
-        let gliding = false;
-        let used = false; // the current gesture already moved a panel
-        let fromOutside = false; // the current gesture began before the section was reached
-        let lastWheel = 0;
-        const onWheel = (e: WheelEvent) => {
-          const now = performance.now();
-          if (now - lastWheel > 250) {
-            used = false;
-            fromOutside = !inside();
-          }
-          lastWheel = now;
-          const swallow = () => {
-            e.preventDefault();
-            e.stopPropagation();
-          };
-          if (gliding || used) return swallow();
-          if (!inside() || Math.abs(e.deltaY) < 2) return;
-          // A gesture that carried you into the section brings you in, but can't also
-          // advance a panel; the settle below parks you on the nearest one (the intro).
-          // Park straight away on the panel it reached, so Lenis's leftover momentum can't
-          // carry on and bounce against the settle (most noticeable scrolling up from below).
-          if (fromOutside) {
-            swallow();
-            used = true;
-            gliding = true;
-            glideTo(Math.round(st.progress * steps), () => {
-              gliding = false;
-            });
-            return;
-          }
-          const next = Math.round(st.progress * steps) + Math.sign(e.deltaY);
-          if (next < 0 || next > steps) return;
-          swallow();
-          used = true;
-          gliding = true;
-          glideTo(next, () => {
-            gliding = false;
-          });
-        };
-        window.addEventListener("wheel", onWheel, { capture: true, passive: false });
-
-        // Whenever scrolling stops between two panels (entering the section, keyboard,
-        // scrollbar drags, touch), settle on the nearest whole panel.
-        const settle = () => {
-          if (!inside() || gliding) return;
-          const at = st.progress * steps;
-          if (Math.abs(at - Math.round(at)) < 0.01) return;
-          glideTo(Math.round(at));
-        };
-        ScrollTrigger.addEventListener("scrollEnd", settle);
-
-        return () => {
-          window.removeEventListener("wheel", onWheel, { capture: true });
-          ScrollTrigger.removeEventListener("scrollEnd", settle);
-        };
       });
 
-      // Mobile, or no sideways motion: the same reveals, triggered vertically.
+      // Phones and tablets: plain stacked panels, drawings triggered as they scroll in.
       mm.add(`(max-width: 1023px) and ${MOTION_OK}`, () => {
         animateArt((panel) => ({
           trigger: panel.querySelector("svg") ?? panel,
@@ -161,7 +123,11 @@ export function Ventures() {
             tl.set(path, { visibility: "visible" }, at).fromTo(
               path,
               { drawSVG: "0%" },
-              { drawSVG: "100%", duration: Number(path.dataset.duration ?? 1.6), ease: "draw" },
+              {
+                drawSVG: "100%",
+                duration: Number(path.dataset.duration ?? 1.6),
+                ease: "draw",
+              },
               at,
             );
           });
@@ -173,95 +139,130 @@ export function Ventures() {
   );
 
   return (
-    <section id="ventures" ref={root} aria-labelledby="ventures-title">
-      <div className="overflow-clip">
-        <div ref={track} className="flex flex-col lg:motion-safe:w-max lg:motion-safe:flex-row">
-          <Intro />
-          {site.ventures.map((v) => (
-            <Panel key={v.id} venture={v} />
-          ))}
-        </div>
-      </div>
+    <section id="ventures" ref={root} aria-labelledby="ventures-title" className="bg-ink">
+      <Intro />
+      {site.ventures.map((v) => (
+        <Panel key={v.id} venture={v} />
+      ))}
     </section>
   );
 }
 
-// The first panel of the sideways run: what this part of the page is, and what's coming.
-function Intro() {
-  const swatch = { ads: "bg-ads", interiors: "bg-interiors", foundation: "bg-foundation" } as const;
+// A sheet's moving parts: the body that sinks back when covered, the shade that dims it, and
+// the corner shadow it holds for the sheet that covers it.
+function Sheet({ className = "", children, ...rest }: React.ComponentProps<"div">) {
   return (
-    <div className="relative flex flex-col justify-center px-4 py-24 sm:px-8 lg:min-h-svh lg:motion-safe:h-svh lg:motion-safe:w-screen lg:motion-safe:py-16">
-      <div className="mx-auto grid w-full max-w-[90rem] gap-14 lg:grid-cols-12 lg:items-end lg:gap-8">
-        <div className="lg:col-span-7">
-          <p className="mb-5 text-sm font-semibold tracking-wide text-ink-soft uppercase">Beyond the portfolio</p>
-          <RevealHeading id="ventures-title" className="max-w-[14ch] font-display text-headline uppercase">
-            Three more things I put my name to
-          </RevealHeading>
-          <p className="mt-8 max-w-[44ch] text-lg text-ink-soft">
-            Alongside the wealth practice, I run an advertising business, lead marketing for an interiors
-            studio and head a foundation that gives back to Hyderabad.
-          </p>
-        </div>
-
-        <ul className="border-t border-ink lg:col-span-4 lg:col-start-9">
-          {site.ventures.map((v) => (
-            <li key={v.id} className="flex items-center gap-4 border-b border-line py-4">
-              <span aria-hidden className={`size-3 shrink-0 ${swatch[v.theme]}`} />
-              <span className="font-display text-2xl uppercase">{v.name}</span>
-              <span className="ml-auto hidden text-right text-sm text-ink-soft sm:block">{v.kicker}</span>
-            </li>
-          ))}
-        </ul>
+    <div data-sheet className={`${sheet} ${className}`} {...rest}>
+      <div data-sheet-body className="relative flex size-full flex-col">
+        {children}
       </div>
-
-      {/* Desktop only: a nudge that this part moves sideways. */}
-      <p
-        aria-hidden
-        className="absolute right-8 bottom-12 hidden items-center gap-3 text-sm font-semibold tracking-wide uppercase lg:motion-safe:flex"
-      >
-        Keep scrolling
-        <svg viewBox="0 0 16 16" className="size-4" fill="none" stroke="currentColor" strokeWidth={2}>
-          <path d="M2 8h11M9 4l4 4-4 4" strokeLinecap="square" />
-        </svg>
-      </p>
+      <span data-shade aria-hidden className="pointer-events-none absolute inset-0 bg-ink opacity-0" />
+      <span aria-hidden className={shadowBeneath} />
     </div>
+  );
+}
+
+// The first sheet: what this part of the page is, and what's coming.
+function Intro() {
+  const lenis = useLenis();
+  // A sheet's resting place: the section's top plus the sheets before it (sticky sheets
+  // report where they're stuck, so measure from the section instead).
+  const openSheet = (from: HTMLElement, index: number) => {
+    const section = from.closest("section");
+    if (!section) return;
+    const sheets = section.querySelectorAll<HTMLElement>("[data-sheet]");
+    let y = section.getBoundingClientRect().top + window.scrollY;
+    for (let k = 0; k < index; k++) y += sheets[k].offsetHeight;
+    glideTo(y, lenis);
+  };
+  const swatch = {
+    ads: "bg-ads",
+    interiors: "bg-interiors",
+    foundation: "bg-foundation",
+  } as const;
+  return (
+    <Sheet className={`notch notch-over-ink bg-paper ${introClip}`}>
+      <div className="flex flex-1 flex-col justify-center px-4 py-24 sm:px-8 lg:min-h-svh lg:motion-safe:py-16">
+        <div className="mx-auto grid w-full max-w-360 gap-14 lg:grid-cols-12 lg:items-end lg:gap-8">
+          <div className="lg:col-span-7">
+            <p data-scramble className="mb-5 text-sm font-semibold tracking-wide text-ink-soft uppercase">
+              Beyond the portfolio
+            </p>
+            <Headline id="ventures-title" className="max-w-[14ch] font-display text-headline uppercase">
+              Three more things I put my name to
+            </Headline>
+            <p className="mt-8 max-w-[44ch] text-lg text-ink-soft">
+              Alongside the wealth practice, I run an advertising business, lead marketing for an interiors studio and
+              head a foundation that gives back to Hyderabad.
+            </p>
+          </div>
+
+          <div data-lines className="lg:col-span-5 lg:col-start-8 xl:col-span-4 xl:col-start-9">
+            <div data-lined className="relative h-px">
+              <span data-line aria-hidden className="absolute inset-0 origin-left bg-ink" />
+            </div>
+            <ul>
+              {site.ventures.map((v, i) => (
+                <li key={v.id} data-lined className="relative">
+                  <span data-line aria-hidden className="absolute inset-x-0 bottom-0 h-px origin-left bg-line" />
+                  {/* A contents list: each venture glides to its own sheet. */}
+                  <button
+                    type="button"
+                    onClick={(e) => openSheet(e.currentTarget, i + 1)}
+                    className="flex w-full cursor-pointer items-center gap-4 py-4 text-left"
+                  >
+                    <span aria-hidden className={`size-3 shrink-0 ${swatch[v.theme]}`} />
+                    <span className="font-display text-2xl uppercase">{v.name}</span>
+                    <span className="ml-auto hidden text-right text-sm text-ink-soft sm:block">{v.kicker}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </Sheet>
   );
 }
 
 function Panel({ venture: v }: { venture: Venture }) {
   const t = themes[v.theme];
   return (
-    <article
-      data-panel
-      data-header-tone={v.theme === "ads" ? "ink" : "paper"}
-      aria-labelledby={`${v.id}-name`}
-      className={`${t.panel} relative flex flex-col lg:min-h-svh justify-between px-4 py-20 sm:px-8 lg:motion-safe:h-svh lg:motion-safe:w-screen lg:motion-safe:pt-28 lg:motion-safe:pb-16`}
-    >
-      <div className={`border-b pb-4 text-sm font-semibold ${t.rule}`}>{v.kicker}</div>
+    <Sheet data-header-tone={v.theme === "ads" ? "ink" : "paper"} className={`notch ${t.panel} ${t.above} ${notch}`}>
+      <article
+        data-panel
+        aria-labelledby={`${v.id}-name`}
+        className="flex flex-1 flex-col px-4 py-20 sm:px-8 lg:min-h-svh lg:motion-safe:pt-28 lg:motion-safe:pb-16"
+      >
+        <div className="mx-auto grid w-full max-w-360 flex-1 items-center gap-12 lg:grid-cols-12 lg:gap-8">
+          <div className="lg:col-span-6">
+            {/* Eyebrow: his role in the venture, right above its name. */}
+            <p className={`mb-5 text-sm font-semibold tracking-wide uppercase ${t.soft}`}>{v.kicker}</p>
+            <h3 data-optical id={`${v.id}-name`} className="font-display text-[clamp(2.5rem,7.5vw,7.5rem)] uppercase">
+              {v.name}
+            </h3>
+            <p className="mt-8 max-w-[42ch] text-lg sm:text-xl">{v.body}</p>
+            {"proof" in v && <p className={`mt-5 max-w-[46ch] text-sm font-medium ${t.soft}`}>{v.proof}</p>}
+            <ul className={`mt-8 flex flex-wrap gap-x-6 gap-y-2 font-semibold ${t.soft}`}>
+              {v.offerings.map((o) => (
+                <li key={o}>{o}</li>
+              ))}
+            </ul>
+            <div className="mt-10">
+              <Button href={v.cta.href} external variant={v.theme}>
+                {v.cta.label}
+              </Button>
+            </div>
+          </div>
 
-      <div className="mx-auto grid w-full max-w-[90rem] flex-1 items-center gap-12 py-12 lg:grid-cols-12 lg:gap-8">
-        <div className="lg:col-span-6">
-          <h3 id={`${v.id}-name`} className="font-display text-[clamp(3rem,7.5vw,7.5rem)] uppercase">
-            {v.name}
-          </h3>
-          <p className="mt-8 max-w-[42ch] text-lg sm:text-xl">{v.body}</p>
-          <ul className={`mt-8 flex flex-wrap gap-x-6 gap-y-2 font-semibold ${t.soft}`}>
-            {v.offerings.map((o) => (
-              <li key={o}>{o}</li>
-            ))}
-          </ul>
-          <Button href={v.cta.href} external variant={v.theme} className="mt-10">
-            {v.cta.label}
-          </Button>
+          <div className="lg:col-span-5 lg:col-start-8" aria-hidden>
+            {v.theme === "ads" && <Broadcast />}
+            {v.theme === "interiors" && <FloorPlan />}
+            {v.theme === "foundation" && <Heartbeat />}
+          </div>
         </div>
-
-        <div className="lg:col-span-5 lg:col-start-8" aria-hidden>
-          {v.theme === "ads" && <Broadcast />}
-          {v.theme === "interiors" && <FloorPlan />}
-          {v.theme === "foundation" && <Heartbeat />}
-        </div>
-      </div>
-    </article>
+      </article>
+    </Sheet>
   );
 }
 
@@ -298,7 +299,10 @@ const smallPhones = [
 function Broadcast() {
   return (
     <Drawing>
-      <path {...stroke} d="M52 80h66a12 12 0 0 1 12 12v136a12 12 0 0 1-12 12H52a12 12 0 0 1-12-12V92a12 12 0 0 1 12-12Z" />
+      <path
+        {...stroke}
+        d="M52 80h66a12 12 0 0 1 12 12v136a12 12 0 0 1-12 12H52a12 12 0 0 1-12-12V92a12 12 0 0 1 12-12Z"
+      />
       <path {...stroke} d="M74 94h22" strokeWidth={1.5} />
       <path {...stroke} d="M58 128h54v30H80l-12 10v-10H58Z" strokeWidth={1.5} />
       <path {...stroke} d="M66 139h38M66 148h24" strokeWidth={1.5} opacity={0.7} />

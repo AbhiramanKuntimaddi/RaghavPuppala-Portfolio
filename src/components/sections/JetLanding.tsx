@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { gsap, MOTION_OK, MOTION_REDUCED, useGSAP } from "@/lib/gsap";
-import { JetIcon } from "./Jet";
+import { JetIcon } from "@/components/ui/Jet";
 
 // The jet's landing, built in real 3D. A runway lies on the ground, tilted back with CSS
 // perspective so it runs off into the distance. The jet comes in large and high, sinks
@@ -16,7 +16,7 @@ import { JetIcon } from "./Jet";
 const ground =
   "absolute bottom-0 left-1/2 h-[2600px] w-[320px] -translate-x-1/2 origin-bottom [transform:rotateX(78deg)] sm:w-[440px]";
 
-export function Landing() {
+export function JetLanding() {
   const scene = useRef<HTMLDivElement>(null);
 
   useGSAP(
@@ -64,20 +64,20 @@ export function Landing() {
     <div
       ref={scene}
       aria-hidden
-      className="pointer-events-none relative h-[260px] overflow-clip [perspective:900px] [perspective-origin:50%_0%] sm:h-[340px]"
+      className="pointer-events-none relative h-65 overflow-clip perspective-[900px] perspective-origin-[50%_0%] sm:h-85"
     >
       {/* Runway: edges, threshold bars and a dashed centre line, fading into the distance. */}
-      <div className={`${ground} border-x-[3px] border-ink [mask-image:linear-gradient(to_top,black_30%,transparent_80%)]`}>
-        <div className="absolute inset-y-0 left-1/2 w-[6px] -translate-x-1/2 bg-[repeating-linear-gradient(to_top,var(--color-ink)_0_60px,transparent_60px_130px)]" />
-        <div className="absolute inset-x-[18px] bottom-[40px] h-[90px] bg-[repeating-linear-gradient(to_right,var(--color-ink)_0_12px,transparent_12px_26px)]" />
+      <div className={`${ground} border-x-[3px] border-ink mask-[linear-gradient(to_top,black_30%,transparent_80%)]`}>
+        <div className="absolute inset-y-0 left-1/2 w-1.5 -translate-x-1/2 bg-[repeating-linear-gradient(to_top,var(--color-ink)_0_60px,transparent_60px_130px)]" />
+        <div className="absolute inset-x-4.5 bottom-10 h-22.5 bg-[repeating-linear-gradient(to_right,var(--color-ink)_0_12px,transparent_12px_26px)]" />
       </div>
 
       {/* Jet and shadow, in the runway's own coordinates (same tilt, no mask). */}
-      <div className={`${ground} [transform-style:preserve-3d]`}>
-        <div data-jet-shadow className="absolute bottom-0 left-1/2 -ml-[70px] size-[140px] text-ink blur-[3px]">
+      <div className={`${ground} transform-3d`}>
+        <div data-jet-shadow className="absolute bottom-0 left-1/2 -ml-17.5 size-35 text-ink blur-[3px]">
           <JetIcon className="size-full -rotate-90" />
         </div>
-        <div data-jet className="absolute bottom-0 left-1/2 -ml-[70px] size-[140px] text-ink">
+        <div data-jet className="absolute bottom-0 left-1/2 -ml-17.5 size-35 text-ink">
           <JetIcon className="size-full -rotate-90" />
         </div>
       </div>

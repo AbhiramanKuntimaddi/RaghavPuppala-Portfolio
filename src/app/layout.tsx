@@ -1,6 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Newsreader } from "next/font/google";
-import { SmoothScroll } from "@/components/SmoothScroll";
+import { Cuts } from "@/components/layout/Cuts";
+import { Flourishes } from "@/components/layout/Flourishes";
+import { OpticalAlign } from "@/components/layout/OpticalAlign";
+import { Preloader } from "@/components/layout/Preloader";
+import { PRELOADED_KEY } from "@/lib/preloader";
+import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { site } from "@/content/site";
 import "./globals.css";
 
@@ -49,25 +54,25 @@ const jsonLd = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en-IN"
-      className={`${archivo.variable} ${newsreader.variable} antialiased`}
-      suppressHydrationWarning
-    >
+    <html lang="en-IN" className={`${archivo.variable} ${newsreader.variable} antialiased`} suppressHydrationWarning>
       <head>
-        {/* Hide intro elements before first paint so they can animate in without a flash. */}
+        {/* Before first paint: "motion" hides intro elements so they can animate in without
+            a flash, and "returning" skips the preloader after its first showing this session. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("motion")`,
+            __html: `if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("motion");try{if(sessionStorage.getItem("${PRELOADED_KEY}"))document.documentElement.classList.add("returning")}catch(e){}`,
           }}
         />
       </head>
       <body>
-        <SmoothScroll>{children}</SmoothScroll>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <Preloader />
+        <SmoothScroll>
+          {children}
+          <Flourishes />
+          <OpticalAlign />
+          <Cuts />
+        </SmoothScroll>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </body>
     </html>
   );

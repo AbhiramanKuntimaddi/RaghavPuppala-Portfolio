@@ -4,8 +4,8 @@ import { useId, useMemo, useRef, useState } from "react";
 import { whatsappLink } from "@/content/site";
 import { formatINR, formatINRShort } from "@/lib/format";
 import { gsap, MOTION_OK, useGSAP } from "@/lib/gsap";
-import { Button } from "./Button";
-import { RevealHeading } from "./Reveal";
+import { Button } from "@/components/ui/Button";
+import { Headline } from "@/components/ui/Headline";
 
 const AMOUNTS = [500, 1000, 2000, 3000, 5000, 7500, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 75000, 100000];
 const SAMPLES = 48;
@@ -160,19 +160,21 @@ export function SipCalculator() {
       id="calculator"
       ref={root}
       aria-labelledby="calc-title"
-      className="bg-paper-2 py-24 sm:py-32 lg:flex lg:h-svh lg:min-h-[46rem] lg:items-center lg:py-0 lg:pt-16"
+      className="notch notch-over-ink bg-paper-2 py-24 sm:py-32 lg:flex lg:h-lvh lg:min-h-160 lg:items-center lg:py-0 lg:pt-16"
     >
-      <div className="mx-auto grid w-full max-w-[90rem] gap-16 px-4 sm:px-8 lg:grid-cols-12 lg:items-center lg:gap-8">
+      <div className="mx-auto grid w-full max-w-360 gap-16 px-4 sm:px-8 lg:grid-cols-12 lg:items-center lg:gap-8">
         <div className="lg:col-span-5">
-          <p className="mb-5 text-sm font-semibold tracking-wide text-ink-soft uppercase">SIP calculator</p>
-          <RevealHeading id="calc-title" className="font-display text-headline uppercase">
+          <p data-scramble className="mb-5 text-sm font-semibold tracking-wide text-ink-soft uppercase">
+            SIP calculator
+          </p>
+          <Headline id="calc-title" className="font-display text-headline uppercase">
             Run the numbers
-          </RevealHeading>
-          <p className="mt-8 max-w-[40ch] text-lg text-ink-soft">
+          </Headline>
+          <p className="mt-8 max-w-[40ch] text-lg text-ink-soft short:mt-6">
             See what a monthly SIP could grow into. Then let&rsquo;s build the real plan around it.
           </p>
 
-          <div data-sliders className="mt-12 space-y-8 lg:mt-10">
+          <div data-sliders className="mt-12 space-y-8 lg:mt-10 short:mt-8 short:space-y-6">
             <Slider
               label="Every month"
               value={formatINR(monthly)}
@@ -210,7 +212,8 @@ export function SipCalculator() {
           </p>
           <p
             data-calc="result"
-            className="mt-2 font-display text-[clamp(4rem,11vw,9.5rem)] tabular lg:text-[clamp(4rem,7.5vw,8rem)]"
+            data-optical
+            className="mt-2 font-display text-[clamp(4rem,11vw,9.5rem)] tabular lg:text-[clamp(4rem,7.5vw,8rem)] short:text-[clamp(3.5rem,min(7.5vw,11svh),8rem)]"
             aria-hidden
           >
             <span ref={totalRef}>{formatINRShort(total)}</span>
@@ -219,10 +222,20 @@ export function SipCalculator() {
             Projected value {formatINR(total)}, of which {formatINR(invested)} is invested.
           </p>
 
-          <div data-calc="chart" className="relative mt-8 lg:mt-6">
-            <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-56 w-full sm:h-72 lg:h-56" aria-hidden>
+          <div data-calc="chart" className="relative mt-8 lg:mt-6 short:mt-4">
+            <svg
+              viewBox={`0 0 ${W} ${H}`}
+              preserveAspectRatio="none"
+              className="h-56 w-full sm:h-72 lg:h-56 short:h-40"
+              aria-hidden
+            >
               <path ref={areaRef} className="fill-marigold" />
-              <path ref={lineRef} className="fill-none stroke-ink" strokeWidth={2.5} vectorEffect="non-scaling-stroke" />
+              <path
+                ref={lineRef}
+                className="fill-none stroke-ink"
+                strokeWidth={2.5}
+                vectorEffect="non-scaling-stroke"
+              />
               <path
                 ref={investedRef}
                 className="fill-none stroke-ink"
@@ -230,7 +243,15 @@ export function SipCalculator() {
                 strokeDasharray="5 6"
                 vectorEffect="non-scaling-stroke"
               />
-              <line x1="0" x2={W} y1={H} y2={H} className="stroke-ink" strokeWidth={1} vectorEffect="non-scaling-stroke" />
+              <line
+                x1="0"
+                x2={W}
+                y1={H}
+                y2={H}
+                className="stroke-ink"
+                strokeWidth={1}
+                vectorEffect="non-scaling-stroke"
+              />
             </svg>
             <div className="mt-2 flex justify-between text-xs font-medium text-ink-soft tabular">
               <span>Today</span>
@@ -238,7 +259,10 @@ export function SipCalculator() {
             </div>
           </div>
 
-          <dl data-calc="after" className="mt-8 grid grid-cols-2 gap-6 border-t border-line pt-6 lg:mt-6">
+          <dl
+            data-calc="after"
+            className="mt-8 grid grid-cols-2 gap-6 border-t border-line pt-6 lg:mt-6 short:mt-4 short:pt-4"
+          >
             <div>
               <dt className="flex items-center gap-2 text-sm text-ink-soft">
                 <span aria-hidden className="inline-block w-5 border-t-[1.5px] border-dashed border-ink" />
@@ -248,14 +272,14 @@ export function SipCalculator() {
             </div>
             <div>
               <dt className="flex items-center gap-2 text-sm text-ink-soft">
-                <span aria-hidden className="inline-block size-3 rounded-[2px] bg-marigold" />
+                <span aria-hidden className="inline-block size-3 rounded-xs bg-marigold" />
                 Estimated growth
               </dt>
               <dd className="mt-1 text-2xl font-semibold tabular">{formatINRShort(total - invested)}</dd>
             </div>
           </dl>
 
-          <div data-calc="after" className="mt-10 self-start lg:mt-8">
+          <div data-calc="after" className="mt-10 self-start lg:mt-8 short:mt-6">
             <Button href={whatsappLink(message)} external variant="ink-on-paper">
               Plan this with Raghav
             </Button>

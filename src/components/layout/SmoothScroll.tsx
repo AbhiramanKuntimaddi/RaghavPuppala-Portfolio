@@ -29,18 +29,28 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
 
   // Web fonts change heading heights (and SplitText re-splits) after first layout;
   // re-measure every trigger once they land so pins and the header's scrollspy line up.
+  // And once more after the page has loaded and the browser has settled, which on iOS
+  // includes the toolbar taking its final height. On touch devices the resize that would
+  // otherwise correct this is ignored (lib/gsap.ts), so it has to be asked for.
   useEffect(() => {
     let cancelled = false;
-    document.fonts?.ready.then(() => !cancelled && ScrollTrigger.refresh());
+    let timer = 0;
+    const remeasure = () => !cancelled && ScrollTrigger.refresh();
+    document.fonts?.ready.then(remeasure);
+    const settled = () => (timer = window.setTimeout(remeasure, 400));
+    if (document.readyState === "complete") settled();
+    else window.addEventListener("load", settled, { once: true });
     return () => {
       cancelled = true;
+      window.clearTimeout(timer);
+      window.removeEventListener("load", settled);
     };
   }, []);
 
   if (reduced) return <>{children}</>;
 
   return (
-    <ReactLenis root ref={lenisRef} options={{ autoRaf: false, lerp: 0.11, anchors: true }}>
+    <ReactLenis root ref={lenisRef} options={{ autoRaf: false, lerp: 0.11 }}>
       <ScrollTriggerSync />
       {children}
     </ReactLenis>

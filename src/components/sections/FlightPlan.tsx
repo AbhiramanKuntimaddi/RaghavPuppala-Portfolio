@@ -3,8 +3,8 @@
 import { useRef } from "react";
 import { site } from "@/content/site";
 import { gsap, MOTION_OK, useGSAP } from "@/lib/gsap";
-import { JetIcon } from "./Jet";
-import { RevealHeading } from "./Reveal";
+import { JetIcon } from "@/components/ui/Jet";
+import { Headline } from "@/components/ui/Headline";
 
 // The hero's jet (an Air Force emblem, not a claim he flew) crossing the three steps.
 // From md up the section pins and the jet crosses while the page holds still,
@@ -60,8 +60,12 @@ export function FlightPlan() {
                 invalidateOnRefresh: true,
               },
         });
-        tl.fromTo(jet.current, { [axis]: 0 }, { [axis]: () => length(), duration: 1, onUpdate: light }, 0)
-          .fromTo(trail.current, { [scale]: 0 }, { [scale]: 1, duration: 1 }, 0);
+        tl.fromTo(jet.current, { [axis]: 0 }, { [axis]: () => length(), duration: 1, onUpdate: light }, 0).fromTo(
+          trail.current,
+          { [scale]: 0 },
+          { [scale]: 1, duration: 1 },
+          0,
+        );
         // A short hold so the last step is fully lit before the section moves on.
         if (wide) tl.to({}, { duration: 0.2 });
       });
@@ -75,15 +79,17 @@ export function FlightPlan() {
       ref={root}
       data-header-tone="paper"
       aria-labelledby="plan-title"
-      className="bg-ink py-24 text-paper sm:py-28 md:flex md:h-svh md:min-h-[42rem] md:items-center md:py-0 md:pt-16"
+      className="notch overflow-x-clip bg-ink py-24 [--notch:var(--color-paper)] text-paper sm:py-28 md:flex md:h-lvh md:min-h-168 md:items-center md:py-0 md:pt-16"
     >
-      <div className="mx-auto w-full max-w-[90rem] px-4 sm:px-8">
+      <div className="mx-auto w-full max-w-360 px-4 sm:px-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="mb-5 text-sm font-semibold tracking-wide text-paper/60 uppercase">How it works</p>
-            <RevealHeading id="plan-title" className="max-w-[14ch] font-display text-headline lg:max-w-[20ch] uppercase">
+            <p data-scramble className="mb-5 text-sm font-semibold tracking-wide text-paper/60 uppercase">
+              How it works
+            </p>
+            <Headline id="plan-title" className="max-w-[14ch] font-display text-headline lg:max-w-[20ch] uppercase">
               How a plan comes together
-            </RevealHeading>
+            </Headline>
           </div>
           <p className="max-w-[34ch] text-lg text-paper/70">
             Three steps, in order, with no surprises. You always know where we are and what comes next.
@@ -94,18 +100,18 @@ export function FlightPlan() {
           {/* The route: horizontal from md up, vertical below. */}
           <span
             aria-hidden
-            className="absolute top-0 bottom-0 left-[11px] border-l border-dashed border-paper/35 md:inset-x-0 md:top-[11px] md:bottom-auto md:border-t md:border-l-0"
+            className="absolute top-0 bottom-0 left-2.75 border-l border-dashed border-paper/35 md:inset-x-0 md:top-2.75 md:bottom-auto md:border-t md:border-l-0"
           />
           {/* Solid trail that fills in behind the jet. */}
           <span
             ref={trail}
             aria-hidden
-            className="absolute top-0 bottom-0 left-[11px] w-px bg-marigold md:inset-x-0 md:top-[11px] md:bottom-auto md:h-px md:w-auto"
+            className="absolute top-0 bottom-0 left-2.75 w-px bg-marigold md:inset-x-0 md:top-2.75 md:bottom-auto md:h-px md:w-auto"
           />
           <div
             ref={jet}
             aria-hidden
-            className="absolute top-0 left-0 z-10 -translate-y-1/2 text-marigold max-md:-translate-x-[8px] max-md:translate-y-0 md:top-[11px]"
+            className="absolute top-0 left-0 z-10 -translate-y-1/2 text-marigold max-md:-translate-x-2 max-md:translate-y-0 md:top-2.75"
           >
             <JetIcon className="size-10 -translate-x-1/2 max-md:translate-x-0" />
           </div>
@@ -119,11 +125,13 @@ export function FlightPlan() {
               >
                 <span
                   aria-hidden
-                  className="absolute top-0 left-0 grid size-[23px] place-items-center rounded-full border border-paper/40 bg-ink transition-colors duration-500 group-data-active:border-marigold group-data-active:bg-marigold"
+                  className="absolute top-0 left-0 grid size-5.75 place-items-center rounded-full border border-paper/40 bg-ink transition-colors duration-500 group-data-active:border-marigold group-data-active:bg-marigold"
                 >
                   <span className="size-1.5 rounded-full bg-paper/60 group-data-active:bg-ink" />
                 </span>
-                <h3 className="font-display text-[clamp(2.5rem,4.5vw,4rem)] uppercase">{step.title}</h3>
+                <h3 data-optical className="font-display text-[clamp(2.5rem,4.5vw,4rem)] uppercase">
+                  {step.title}
+                </h3>
                 <p className="mt-4 max-w-[36ch] text-lg text-paper/80">{step.body}</p>
               </li>
             ))}

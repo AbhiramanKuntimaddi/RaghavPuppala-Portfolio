@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, type CSSProperties } from "react";
+import { bandHandlers, bandOrigin } from "@/lib/band";
 import { gsap, useGSAP } from "@/lib/gsap";
 
 // Colors per surface. `fill` rises on hover, so it must contrast with both the
@@ -29,6 +30,22 @@ const variants = {
     fill: "var(--color-paper)",
     fillFg: "var(--color-ink)",
   },
+  // Secondary button on marigold: an ink outline, filled with ink on hover.
+  outline: {
+    bg: "var(--color-ink)",
+    fg: "var(--color-ink)",
+    fill: "var(--color-ink)",
+    fillFg: "var(--color-marigold)",
+    inner: "var(--color-marigold)",
+  },
+  // Secondary button on ink (the mobile menu): a cream outline, filled with cream on hover.
+  "outline-on-ink": {
+    bg: "var(--color-paper)",
+    fg: "var(--color-paper)",
+    fill: "var(--color-paper)",
+    fillFg: "var(--color-ink)",
+    inner: "var(--color-ink)",
+  },
   ads: { bg: "var(--color-ink)", fg: "var(--color-ads)", fill: "var(--color-paper)", fillFg: "var(--color-ink)" },
   interiors: {
     bg: "var(--color-paper)",
@@ -47,10 +64,15 @@ const variants = {
 const sizes = {
   sm: { box: "h-10 text-[0.8rem]", label: "px-4", cell: "w-10", notch: "8px" },
   md: { box: "h-14 text-[0.95rem]", label: "px-6", cell: "w-14", notch: "12px" },
-  lg: { box: "h-16 text-base sm:h-[4.5rem] sm:text-lg", label: "px-7 sm:px-8", cell: "w-16 sm:w-[4.5rem]", notch: "14px" },
+  lg: {
+    box: "h-16 text-base sm:h-[4.5rem] sm:text-lg",
+    label: "px-7 sm:px-8",
+    cell: "w-16 sm:w-[4.5rem]",
+    notch: "14px",
+  },
 } as const;
 
-export type ButtonVariant = keyof typeof variants;
+type ButtonVariant = keyof typeof variants;
 
 type Props = {
   href: string;
@@ -79,7 +101,7 @@ export function Button({
   compactOnMobile,
 }: Props) {
   const ref = useRef<HTMLAnchorElement>(null);
-  const v = variants[variant];
+  const v: { bg: string; fg: string; fill: string; fillFg: string; inner?: string } = variants[variant];
   const s = sizes[size];
 
   useGSAP(
@@ -114,6 +136,7 @@ export function Button({
     "--btn-fill": v.fill,
     "--btn-fill-fg": v.fillFg,
     "--btn-notch": s.notch,
+    "--btn-inner": v.inner,
   } as CSSProperties;
 
   const label = (text: string, extra = "") => <span className={`block ${extra}`}>{text}</span>;
@@ -122,18 +145,25 @@ export function Button({
     <a
       ref={ref}
       href={href}
+      {...bandHandlers}
       {...(external ? { target: "_blank", rel: "noopener" } : {})}
       style={style}
-      className={`group relative inline-flex shrink-0 items-stretch font-bold tracking-[0.06em] whitespace-nowrap uppercase [font-stretch:82%] text-(--btn-fg) transition-colors duration-300 hover:text-(--btn-fill-fg) focus-visible:text-(--btn-fill-fg) ${s.box} ${className}`}
+      className={`group relative inline-flex shrink-0 items-stretch font-bold tracking-[0.06em] whitespace-nowrap uppercase font-condensed text-(--btn-fg) transition-colors duration-300 hover:text-(--btn-fill-fg) focus-visible:text-(--btn-fill-fg) ${s.box} ${className}`}
     >
       {/* Background and hover fill live on a clipped layer so the focus ring isn't clipped too. */}
       <span
         aria-hidden
         className="absolute inset-0 overflow-clip bg-(--btn-bg) [clip-path:polygon(0_0,calc(100%-var(--btn-notch))_0,100%_var(--btn-notch),100%_100%,0_100%)]"
       >
-        {/* Briefing band, as on the header links: the fill sweeps in from the left and,
-            on leave, carries on out to the right (the origin flips with hover). */}
-        <span className="absolute inset-0 origin-right scale-x-0 bg-(--btn-fill) transition-transform duration-500 ease-out-expo group-hover:origin-left group-hover:scale-x-100 group-focus-visible:origin-left group-focus-visible:scale-x-100" />
+        {/* Outline buttons: the surface colour inset by the stroke width, notch included. */}
+        {v.inner && (
+          <span className="absolute inset-0.5 bg-(--btn-inner) [clip-path:polygon(0_0,calc(100%-var(--btn-notch)+1px)_0,100%_calc(var(--btn-notch)-1px),100%_100%,0_100%)]" />
+        )}
+        {/* Briefing band, as on the header links: the fill sweeps in from the side the
+            pointer entered on and out toward the side it left by (see lib/band). */}
+        <span
+          className={`absolute inset-0 scale-x-0 bg-(--btn-fill) transition-transform duration-500 ease-out-expo group-hover:scale-x-100 group-focus-visible:scale-x-100 ${bandOrigin}`}
+        />
       </span>
 
       <span className={`relative flex items-center leading-none ${s.label}`}>
@@ -153,8 +183,8 @@ export function Button({
           compactOnMobile ? "hidden sm:grid" : "grid"
         }`}
       >
-        <Arrow className="transition-transform duration-500 ease-out-expo group-hover:translate-x-[3em] group-hover:-translate-y-[3em] group-focus-visible:translate-x-[3em] group-focus-visible:-translate-y-[3em]" />
-        <Arrow className="absolute -translate-x-[3em] translate-y-[3em] transition-transform duration-500 ease-out-expo group-hover:translate-0 group-focus-visible:translate-0" />
+        <Arrow className="transition-transform duration-500 ease-out-expo group-hover:translate-x-[3em] group-hover:translate-y-[-3em] group-focus-visible:translate-x-[3em] group-focus-visible:translate-y-[-3em]" />
+        <Arrow className="absolute translate-x-[-3em] translate-y-[3em] transition-transform duration-500 ease-out-expo group-hover:translate-0 group-focus-visible:translate-0" />
       </span>
     </a>
   );

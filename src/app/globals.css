@@ -5,6 +5,8 @@
   Each venture keeps a color lifted from its own identity.
 */
 @theme {
+  --notch-size: 28px;
+
   --color-paper: oklch(0.974 0.009 85);
   --color-paper-2: oklch(0.942 0.014 82);
   --color-ink: oklch(0.205 0.018 55);
@@ -68,6 +70,10 @@
     outline-offset: 4px;
     border-radius: 2px;
   }
+  /* Focus moved to a section by script (the skip link) needs no outline around it. */
+  [tabindex="-1"]:focus {
+    outline: none;
+  }
 }
 
 @utility font-display {
@@ -86,6 +92,119 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Short landscape screens (tablets on their side, 13" laptops): full-height sections
+   tighten up so their content still fits on one screen. */
+@custom-variant short (@media (width >= 64rem) and (height <= 51.25rem));
+
+@media (width >= 64rem) {
+  :root {
+    --notch-size: 56px;
+  }
+}
+
+/* Each section sits like a card on the one above, and its top edge, trimmed corner included,
+   casts a soft shadow onto it: darkest right against the edge, gone a short way up. Its
+   strength depends on what it falls on, so it reads the same everywhere: soft on paper,
+   stronger on the venture colours, near-black on ink (notch-over-ink). */
+:root {
+  --edge-shade-soft: oklch(0.2 0.02 55 / 0.16);
+  --edge-shade-mid: oklch(0.15 0.02 55 / 0.34);
+  --edge-shade: var(--edge-shade-soft);
+}
+
+/* The shadow fades out on an eased curve rather than a straight line: strongest at the edge,
+   then thinning off gradually with no visible line where it ends, the way a real shadow
+   blurs out. Defined on each element that draws it, so it uses that element's --edge-shade:
+   --notch-edge-shade runs up from a straight edge, --notch-corner-shade out from the 45° one
+   (its box is square, so the gradient's 50% line is the edge itself). */
+:where(.notch, .notch-corner-shadow) {
+  --shade-80: color-mix(in oklab, var(--edge-shade) 80%, transparent);
+  --shade-58: color-mix(in oklab, var(--edge-shade) 58%, transparent);
+  --shade-38: color-mix(in oklab, var(--edge-shade) 38%, transparent);
+  --shade-22: color-mix(in oklab, var(--edge-shade) 22%, transparent);
+  --shade-10: color-mix(in oklab, var(--edge-shade) 10%, transparent);
+  --shade-3: color-mix(in oklab, var(--edge-shade) 3%, transparent);
+  --notch-edge-shade: linear-gradient(
+    to top,
+    var(--edge-shade),
+    var(--shade-80) 15%,
+    var(--shade-58) 30%,
+    var(--shade-38) 45%,
+    var(--shade-22) 60%,
+    var(--shade-10) 75%,
+    var(--shade-3) 90%,
+    transparent
+  );
+  --notch-corner-shade: linear-gradient(
+    to top right,
+    transparent 50%,
+    var(--edge-shade) 50%,
+    var(--shade-80) calc(50% + var(--notch-lift) * 0.15),
+    var(--shade-58) calc(50% + var(--notch-lift) * 0.3),
+    var(--shade-38) calc(50% + var(--notch-lift) * 0.45),
+    var(--shade-22) calc(50% + var(--notch-lift) * 0.6),
+    var(--shade-10) calc(50% + var(--notch-lift) * 0.75),
+    var(--shade-3) calc(50% + var(--notch-lift) * 0.9),
+    transparent calc(50% + var(--notch-lift))
+  );
+}
+
+/* The site's clipped corner on a whole section: the top-right corner is trimmed off and
+   the section above shows through it. Set the colour above with --notch.
+
+   ::before is the corner: the colour above, with the shadow along the 45° edge. ::after is
+   the shadow along the straight top edge. The corner's box reaches up by the shadow's depth
+   (--notch-lift) so the two shadows meet in a mitre, the way one shadow turns a corner. */
+@utility notch {
+  position: relative;
+  /* Whole pixels, so the corner's colour starts on a pixel edge with no seam above it. */
+  --notch-lift: round(calc(var(--notch-size) * 0.28), 1px);
+  &::before {
+    content: "";
+    position: absolute;
+    top: calc(-1 * var(--notch-lift));
+    right: 0;
+    z-index: 1;
+    width: calc(var(--notch-size) + var(--notch-lift));
+    height: calc(var(--notch-size) + var(--notch-lift));
+    background:
+      var(--notch-corner-shade), linear-gradient(transparent var(--notch-lift), var(--notch, var(--color-paper)) 0);
+    clip-path: polygon(var(--notch-lift) var(--notch-lift), calc(var(--notch-lift) * 1.4142) 0, 100% 0, 100% 100%);
+    pointer-events: none;
+    /* Folds in from the corner as the section arrives (Flourishes animates --notch-in), and
+       folds shut again when a venture sheet is covered by the next (Ventures, --notch-shut). */
+    transform: scale(calc(var(--notch-in, 1) * (1 - var(--notch-shut, 0))));
+    transform-origin: 100% var(--notch-lift);
+  }
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    z-index: 1;
+    width: calc(100% - var(--notch-size) + var(--notch-lift) * 0.4142);
+    height: var(--notch-lift);
+    background: var(--notch-edge-shade);
+    clip-path: polygon(0 0, 100% 0, calc(100% - var(--notch-lift) * 0.4142) 100%, 0 100%);
+    pointer-events: none;
+  }
+}
+
+/* The corner's shadow on its own, the same shape as in notch's ::before, for where the
+   corner is a real cut and the shadow is drawn on what's beneath it (Ventures). */
+@utility notch-corner-shadow {
+  width: calc(var(--notch-size) + var(--notch-lift));
+  height: calc(var(--notch-size) + var(--notch-lift));
+  background: var(--notch-corner-shade);
+  clip-path: polygon(var(--notch-lift) var(--notch-lift), calc(var(--notch-lift) * 1.4142) 0, 100% 0, 100% 100%);
+}
+
+/* A section under an ink one: the corner shows ink, and the shadow goes near-black. */
+@utility notch-over-ink {
+  --notch: var(--color-ink);
+  --edge-shade: oklch(0.08 0.01 55 / 0.6);
+}
+
 /* Intro elements wait for GSAP; the fallback reveals them if scripts never run. */
 html.motion [data-reveal] {
   visibility: hidden;
@@ -94,6 +213,21 @@ html.motion [data-reveal] {
 @keyframes reveal-fallback {
   to {
     visibility: visible;
+  }
+}
+
+/* Preloader: never shown with reduced motion or after its first showing this session, and
+   if scripts never run it gets out of the way after a few seconds. */
+html:not(.motion) [data-preloader],
+html.returning [data-preloader] {
+  display: none;
+}
+[data-preloader] {
+  animation: preloader-fallback 0s linear 6s forwards;
+}
+@keyframes preloader-fallback {
+  to {
+    visibility: hidden;
   }
 }
 
@@ -152,8 +286,22 @@ html.lenis body {
   background: var(--color-marigold);
   border: 3px solid var(--color-ink);
 }
+.range::-moz-range-thumb {
+  transition: transform 200ms var(--ease-out-expo);
+}
+.range:hover::-webkit-slider-thumb,
+.range:focus-visible::-webkit-slider-thumb {
+  transform: scale(1.1);
+}
+.range:hover::-moz-range-thumb,
+.range:focus-visible::-moz-range-thumb {
+  transform: scale(1.1);
+}
 .range:active::-webkit-slider-thumb {
-  transform: scale(1.2);
+  transform: scale(1.25);
+}
+.range:active::-moz-range-thumb {
+  transform: scale(1.25);
 }
 .range:focus-visible {
   outline-offset: 0;

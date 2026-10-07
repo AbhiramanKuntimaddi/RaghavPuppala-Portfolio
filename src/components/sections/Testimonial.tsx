@@ -53,7 +53,11 @@ export function Testimonial() {
             .set(caption, { autoAlpha: 0, y: 12 }, at)
             .fromTo(q, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: "expo.out" }, at)
             .to(words[i], { opacity: 1, duration: 0.4, stagger: 0.07, ease: "none" }, at + 0.3)
-            .to(caption, { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" }, at + 0.3 + 0.07 * words[i].length + 0.2)
+            .to(
+              caption,
+              { autoAlpha: 1, y: 0, duration: 0.6, ease: "expo.out" },
+              at + 0.3 + 0.07 * words[i].length + 0.2,
+            )
             .fromTo(bars[i], { scaleX: 0 }, { scaleX: 1, duration: SLOT, ease: "none" }, at)
             .to(q, { autoAlpha: 0, y: -30, duration: 0.6, ease: "power2.in" }, at + SLOT - 0.6);
         });
@@ -73,7 +77,6 @@ export function Testimonial() {
           loop.current = null;
         };
       });
-
     },
     { scope: root },
   );
@@ -89,12 +92,13 @@ export function Testimonial() {
     <section
       ref={root}
       aria-label="What clients say"
+      data-header-tone="paper"
       onFocus={(e) => e.target.matches(":focus-visible") && pause()}
       onBlur={(e) => !e.currentTarget.contains(e.relatedTarget) && resume()}
-      className="py-24 sm:py-32 md:flex md:h-svh md:min-h-[40rem] md:flex-col md:justify-center md:py-0 md:pt-16"
+      className="notch bg-ink py-24 text-paper [--notch:var(--color-paper-2)] sm:py-32 md:flex md:h-lvh md:min-h-160 md:flex-col md:justify-center md:py-0 md:pt-16"
     >
-      <div className="mx-auto w-full max-w-[90rem] px-4 sm:px-8">
-        <p className="mb-10 text-sm font-semibold tracking-wide text-ink-soft uppercase md:mb-14">
+      <div className="mx-auto w-full max-w-360 px-4 sm:px-8">
+        <p data-scramble className="mb-10 text-sm font-semibold tracking-wide text-paper/60 uppercase md:mb-14">
           What clients say
         </p>
 
@@ -104,10 +108,12 @@ export function Testimonial() {
           {site.testimonials.map((t) => (
             <figure key={t.author} data-quote className="motion-safe:[grid-area:1/1]">
               <blockquote className="max-w-[26ch] font-serif text-[clamp(2rem,5.2vw,4.75rem)] leading-[1.08] tracking-[-0.01em] italic">
-                &ldquo;{t.quote}&rdquo;
+                {/* The opening quote mark hangs in the margin, so the first word lines up. */}
+                <span data-hang>&ldquo;</span>
+                {t.quote}&rdquo;
               </blockquote>
               <figcaption className="mt-10 flex items-center gap-4 font-semibold">
-                <span aria-hidden className="h-px w-12 bg-ink" />
+                <span aria-hidden className="h-px w-12 bg-paper" />
                 {t.author}
               </figcaption>
             </figure>
@@ -124,8 +130,8 @@ export function Testimonial() {
               aria-label={`Show the quote from ${t.author}`}
               className="group flex-1 py-3"
             >
-              <span className="block h-0.5 bg-line transition-colors duration-300 group-hover:bg-ink/30">
-                <span data-bar className="block h-full origin-left scale-x-0 bg-ink" />
+              <span className="block h-0.5 bg-paper/15 transition-colors duration-300 group-hover:bg-paper/30">
+                <span data-bar className="block h-full origin-left scale-x-0 bg-paper" />
               </span>
             </button>
           ))}

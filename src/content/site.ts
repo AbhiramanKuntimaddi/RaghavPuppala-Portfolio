@@ -20,7 +20,8 @@ export const site = {
       { display: "+91 98494 37374", href: "tel:+919849437374" },
     ],
     email: "hello@raghavpuppala.com",
-    hours: "9 AM to 5 PM",
+    days: { short: "Mon - Fri", long: "Monday - Friday" },
+    hours: "9 AM - 5 PM",
     demat: "http://p.njw.bz/99909",
   },
 
@@ -34,7 +35,6 @@ export const site = {
   portrait: {
     alt: "Raghav Puppala smiling at a café table, in glasses and a navy and white sweater",
   },
-
 
   // The credentials band under the hero.
   // `count` makes a value tick up from zero; the rest decode letter by letter.
@@ -81,6 +81,13 @@ export const site = {
     },
   ],
 
+  // His appointments with the insurers he advises for (from the old About page).
+  affiliations: [
+    { org: "HDFC Life", role: "Executive Wealth Planner" },
+    { org: "Star Health Insurance", role: "Health Insurance Advisor" },
+    { org: "TATA AIG", role: "General Insurance Advisor" },
+  ],
+
   practice: [
     {
       title: "Investments",
@@ -90,7 +97,7 @@ export const site = {
     {
       title: "Insurance",
       body: "Life, health and motor cover sized to what your family actually needs, and nothing it doesn't.",
-      detail: "HDFC Life · Star Health · TATA AIG",
+      detail: "IRDAI-licensed advisor",
     },
     {
       title: "Retirement & goals",
@@ -120,10 +127,12 @@ export const site = {
     {
       id: "adsxcell",
       name: "AdsXcell",
-      kicker: "Digital advertising since 2009",
-      body: "Reach customers at scale. Campaigns for businesses that need their message on thousands of phones today, not next month.",
-      offerings: ["Bulk WhatsApp", "Bulk SMS", "Bulk voice calls"],
-      cta: { label: "Ask about a campaign", href: whatsappLink("Hi Raghav, I'd like to know about AdsXcell campaigns.") },
+      kicker: "IT & advertising since 2009",
+      body: "Bulk SMS and WhatsApp campaigns that put a business's message on thousands of phones at once, and TallyPrime accounting as an authorised Tally partner: new licences, renewals and customisation.",
+      // From adsxcell.com: its own client count, and two clients who've written in.
+      proof: "500+ businesses and 200+ individuals served, including teams at Panasonic India and D'sire Exhibitions.",
+      offerings: ["Bulk SMS", "Bulk WhatsApp", "TallyPrime"],
+      cta: { label: "Visit adsxcell.com", href: "https://adsxcell.com" },
       theme: "ads",
     },
     {
@@ -131,8 +140,8 @@ export const site = {
       name: "SP Design Studio",
       kicker: "Marketing & lead generation",
       body: "End-to-end interiors by Spandana Puppala, from the first floor plan to a finished home you can walk into and live in. I look after the studio's marketing and lead generation.",
-      offerings: ["Turnkey execution", "Space planning", "Interior styling"],
-      cta: { label: "Plan a space", href: "https://www.spdesignstudio.in/contact" },
+      offerings: ["Turnkey execution", "Space planning & consulting", "Interior styling"],
+      cta: { label: "Visit spdesignstudio.in", href: "https://www.spdesignstudio.in/contact" },
       theme: "interiors",
     },
     {

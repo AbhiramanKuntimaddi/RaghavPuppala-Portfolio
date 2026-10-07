@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, type ElementType, type ReactNode } from "react";
-import { gsap, MOTION_OK, SplitText, useGSAP } from "@/lib/gsap";
+import { SplitText, useGSAP } from "@/lib/gsap";
+import { alignOptically } from "@/lib/optical";
 
 type Props = {
   as?: ElementType;
@@ -10,27 +11,18 @@ type Props = {
   id?: string;
 };
 
-// Headline that rises line by line from behind its own mask as it enters view.
-export function RevealHeading({ as: Tag = "h2", className, children, id }: Props) {
+// A section headline, split into lines so each one can be optically aligned (see
+// lib/optical). Its entrance is the section's corner-cut entry (components/layout/Cuts).
+export function Headline({ as: Tag = "h2", className, children, id }: Props) {
   const ref = useRef<HTMLElement>(null);
 
   useGSAP(
     () => {
-      gsap.matchMedia().add(MOTION_OK, () => {
-        SplitText.create(ref.current, {
-          type: "lines",
-          mask: "lines",
-          linesClass: "split-line",
-          autoSplit: true,
-          onSplit(self) {
-            return gsap.from(self.lines, {
-              yPercent: 105,
-              stagger: 0.09,
-              duration: 1.3,
-              scrollTrigger: { trigger: ref.current, start: "top 85%", once: true },
-            });
-          },
-        });
+      SplitText.create(ref.current, {
+        type: "lines",
+        linesClass: "split-line",
+        autoSplit: true,
+        onSplit: (self) => void alignOptically(self.lines),
       });
     },
     { scope: ref },
