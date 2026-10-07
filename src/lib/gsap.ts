@@ -27,6 +27,11 @@ gsap.defaults({ ease: "expo.out", duration: 1.1 });
 // of the screen after the toolbar collapses, with no strip of the next section beneath.
 ScrollTrigger.config({ ignoreMobileResize: true });
 
+// A reload starts from the top. Left to itself the browser puts the old scroll position back
+// before the pinned sections have added their scroll length, so it lands well short of where
+// the reader was, with every scroll animation set for the wrong place.
+if (typeof window !== "undefined") ScrollTrigger.clearScrollMemory("manual");
+
 export const MOTION_OK = "(prefers-reduced-motion: no-preference)";
 export const MOTION_REDUCED = "(prefers-reduced-motion: reduce)";
 
