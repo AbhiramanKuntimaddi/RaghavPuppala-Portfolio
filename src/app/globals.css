@@ -16,7 +16,9 @@
   --color-marigold: oklch(0.83 0.155 78);
   --color-marigold-deep: oklch(0.72 0.16 65);
 
-  --color-ads: oklch(0.7 0.155 38);
+  /* AdsXcell's colour. Never name a colour (or any class) "ads": ad blockers hide elements
+     with classes like .bg-ads on every site, and the AdsXcell sheet vanished with it. */
+  --color-broadcast: oklch(0.7 0.155 38);
   --color-interiors: oklch(0.42 0.055 350);
   --color-interiors-soft: oklch(0.88 0.03 350);
   --color-foundation: oklch(0.43 0.075 240);
@@ -52,8 +54,8 @@
   }
 
   /* A marigold highlight vanishes on warm surfaces; select in ink there instead. */
-  :is(.bg-marigold, .bg-ads) ::selection,
-  :is(.bg-marigold, .bg-ads)::selection {
+  :is(.bg-marigold, .bg-broadcast) ::selection,
+  :is(.bg-marigold, .bg-broadcast)::selection {
     background: var(--color-ink);
     color: var(--color-paper);
   }

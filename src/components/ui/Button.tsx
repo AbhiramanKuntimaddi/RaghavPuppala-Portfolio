@@ -46,7 +46,12 @@ const variants = {
     fillFg: "var(--color-ink)",
     inner: "var(--color-ink)",
   },
-  ads: { bg: "var(--color-ink)", fg: "var(--color-ads)", fill: "var(--color-paper)", fillFg: "var(--color-ink)" },
+  broadcast: {
+    bg: "var(--color-ink)",
+    fg: "var(--color-broadcast)",
+    fill: "var(--color-paper)",
+    fillFg: "var(--color-ink)",
+  },
   interiors: {
     bg: "var(--color-paper)",
     fg: "var(--color-interiors)",

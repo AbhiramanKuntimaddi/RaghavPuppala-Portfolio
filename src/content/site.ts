@@ -133,7 +133,7 @@ export const site = {
       proof: "500+ businesses and 200+ individuals served, including teams at Panasonic India and D'sire Exhibitions.",
       offerings: ["Bulk SMS", "Bulk WhatsApp", "TallyPrime"],
       cta: { label: "Visit adsxcell.com", href: "https://adsxcell.com" },
-      theme: "ads",
+      theme: "broadcast",
     },
     {
       id: "interiors",

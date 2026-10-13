@@ -8,25 +8,21 @@ import { glideTo } from "@/lib/navigate";
 import { Button } from "@/components/ui/Button";
 import { Headline } from "@/components/ui/Headline";
 
-// face: the sheet's colour. above: the colour showing through the trimmed corner, and how
-// strong the shadow cast on it is. --edge-shade-own: the shadow cast on this sheet by the
-// one that covers it.
+// above: the colour showing through the trimmed corner, and how strong the shadow cast on
+// it is. --edge-shade-own: the shadow cast on this sheet by the one that covers it.
 const themes = {
-  ads: {
-    face: "bg-ads",
-    panel: "text-ink [--edge-shade-own:var(--edge-shade-mid)]",
+  broadcast: {
+    panel: "bg-broadcast text-ink [--edge-shade-own:var(--edge-shade-mid)]",
     soft: "text-ink/70",
     above: "[--notch:var(--color-paper)]",
   },
   interiors: {
-    face: "bg-interiors",
-    panel: "text-paper [--edge-shade-own:var(--edge-shade-mid)]",
+    panel: "bg-interiors text-paper [--edge-shade-own:var(--edge-shade-mid)]",
     soft: "text-interiors-soft",
-    above: "[--notch:var(--color-ads)] [--edge-shade:var(--edge-shade-mid)]",
+    above: "[--notch:var(--color-broadcast)] [--edge-shade:var(--edge-shade-mid)]",
   },
   foundation: {
-    face: "bg-foundation",
-    panel: "text-paper",
+    panel: "bg-foundation text-paper",
     soft: "text-foundation-soft",
     above: "[--notch:var(--color-interiors)] [--edge-shade:var(--edge-shade-mid)]",
   },
@@ -36,20 +32,18 @@ const themes = {
 // top of the screen and the next slides up over it, like pages in a briefing folder; the
 // sheet being covered sinks back and dims. It's all ordinary scrolling (CSS sticky), so
 // nothing takes over the wheel or snaps, and a trackpad, wheel or keyboard all feel the same.
-// Clipped to its own box below and at the sides, but not just above the top edge, where its
-// shadow falls. Only ever a plain rectangle: Firefox (and Zen) stop drawing a sticky element
-// with a shaped clip once it sticks, so the real cut below goes on layers inside the sheet.
-const sheet =
-  "lg:motion-safe:sticky lg:motion-safe:top-0 lg:motion-safe:h-lvh lg:motion-safe:overflow-x-clip lg:motion-safe:[clip-path:polygon(0_calc(-1*var(--notch-lift)),100%_calc(-1*var(--notch-lift)),100%_100%,0_100%)]";
+// Clipped below and at the sides, but not just above the top edge, where its shadow falls.
+const sheet = "lg:motion-safe:sticky lg:motion-safe:top-0 lg:motion-safe:h-lvh lg:motion-safe:overflow-x-clip";
 // On desktop each venture's trimmed corner is cut for real, so the sheet underneath shows
 // through as it slides over. Elsewhere the notch utility paints the colour above instead.
 // The cut's size follows the same variables as the painted corner (globals.css), so it
-// folds in on arrival and folds shut once the sheet is covered. The sheet itself has no
-// background: its colour (the face) and its shade are the layers that carry the cut, which
-// is all that needs it, since the content never reaches the corner.
+// folds in on arrival and folds shut once the sheet is covered.
+// The clip reaches up past the top edge for the edge's shadow, mitred where the cut begins.
 const notch =
-  "lg:motion-safe:[--cut:calc(var(--notch-size)*var(--notch-in,1)*(1-var(--notch-shut,0)))] lg:motion-safe:before:hidden";
-const cut = "lg:motion-safe:[clip-path:polygon(0_0,calc(100%-var(--cut))_0,100%_var(--cut),100%_100%,0_100%)]";
+  "lg:motion-safe:[--cut:calc(var(--notch-size)*var(--notch-in,1)*(1-var(--notch-shut,0)))] lg:motion-safe:[clip-path:polygon(0_calc(-1*var(--notch-lift)),calc(100%-var(--cut)+var(--notch-lift)*0.4142)_calc(-1*var(--notch-lift)),calc(100%-var(--cut))_0,100%_var(--cut),100%_100%,0_100%)]";
+// The intro has no real cut, only room for the shadow above.
+const introClip =
+  "lg:motion-safe:[clip-path:polygon(0_calc(-1*var(--notch-lift)),100%_calc(-1*var(--notch-lift)),100%_100%,0_100%)]";
 // A real cut has no painted corner to carry its edge's shadow, so each sheet draws that
 // part for the sheet sliding over it (notch-corner-shadow, in its own top-right), moved down
 // to sit right under the arriving sheet's cut (--beneath-y, its distance from the top) and
@@ -154,24 +148,15 @@ export function Ventures() {
   );
 }
 
-// A sheet's moving parts: its colour (the face, cut at the corner when `cut`), the body that
-// sinks back when covered, the shade that dims it, and the corner shadow it holds for the
-// sheet that covers it.
-function Sheet({
-  face,
-  cut: cutCorner = false,
-  className = "",
-  children,
-  ...rest
-}: React.ComponentProps<"div"> & { face: string; cut?: boolean }) {
-  const corner = cutCorner ? cut : "";
+// A sheet's moving parts: the body that sinks back when covered, the shade that dims it, and
+// the corner shadow it holds for the sheet that covers it.
+function Sheet({ className = "", children, ...rest }: React.ComponentProps<"div">) {
   return (
     <div data-sheet className={`${sheet} ${className}`} {...rest}>
-      <span aria-hidden className={`absolute inset-0 ${face} ${corner}`} />
       <div data-sheet-body className="relative flex size-full flex-col">
         {children}
       </div>
-      <span data-shade aria-hidden className={`pointer-events-none absolute inset-0 bg-ink opacity-0 ${corner}`} />
+      <span data-shade aria-hidden className="pointer-events-none absolute inset-0 bg-ink opacity-0" />
       <span aria-hidden className={shadowBeneath} />
     </div>
   );
@@ -191,12 +176,12 @@ function Intro() {
     glideTo(y, lenis);
   };
   const swatch = {
-    ads: "bg-ads",
+    broadcast: "bg-broadcast",
     interiors: "bg-interiors",
     foundation: "bg-foundation",
   } as const;
   return (
-    <Sheet face="bg-paper" className="notch notch-over-ink">
+    <Sheet className={`notch notch-over-ink bg-paper ${introClip}`}>
       <div className="flex flex-1 flex-col justify-center px-4 py-24 sm:px-8 lg:min-h-svh lg:motion-safe:py-16">
         <div className="mx-auto grid w-full max-w-360 gap-14 lg:grid-cols-12 lg:items-end lg:gap-8">
           <div className="lg:col-span-7">
@@ -244,9 +229,7 @@ function Panel({ venture: v }: { venture: Venture }) {
   const t = themes[v.theme];
   return (
     <Sheet
-      face={t.face}
-      cut
-      data-header-tone={v.theme === "ads" ? "ink" : "paper"}
+      data-header-tone={v.theme === "broadcast" ? "ink" : "paper"}
       className={`notch ${t.panel} ${t.above} ${notch}`}
     >
       <article
@@ -276,7 +259,7 @@ function Panel({ venture: v }: { venture: Venture }) {
           </div>
 
           <div className="lg:col-span-5 lg:col-start-8" aria-hidden>
-            {v.theme === "ads" && <Broadcast />}
+            {v.theme === "broadcast" && <Broadcast />}
             {v.theme === "interiors" && <FloorPlan />}
             {v.theme === "foundation" && <Heartbeat />}
           </div>
