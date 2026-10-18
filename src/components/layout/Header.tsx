@@ -48,7 +48,7 @@ const nav = [
   { id: "process", label: "How it works", about: "Brief, plan, review" },
   { id: "calculator", label: "Calculator", about: "See what a SIP grows into" },
   { id: "ventures", label: "Ventures", about: "AdsXcell, SP Design Studio, HridaySpandana" },
-  { id: "contact", label: "Contact", about: "Call, email, WhatsApp" },
+  { id: "contact", label: "Contact", about: "Book, call, email, WhatsApp" },
 ];
 
 // Transparent over the marigold hero, a floating cream panel once scrolled, with a
@@ -240,14 +240,14 @@ export function Header() {
             <div className="flex items-center gap-2 justify-self-end sm:gap-3">
               <span data-header-item className="flex">
                 <Button
-                  href={site.contact.demat}
+                  href={site.contact.booking.href}
                   external
                   size="sm"
                   variant={blend === "paper" ? "marigold" : solidBar && !blend ? "ink-on-paper" : "header"}
-                  shortLabel="Free Demat"
+                  shortLabel="Book"
                   compactOnMobile
                 >
-                  Open a free Demat account
+                  {site.contact.booking.label}
                 </Button>
               </span>
               <button
@@ -501,7 +501,14 @@ function MobileMenu({
 
       <div data-menu-foot className="mt-auto pt-10">
         <div className="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap">
-          <Button href={whatsappLink("Hi Raghav, I'd like to talk about my finances.")} external variant="marigold">
+          <Button href={site.contact.booking.href} external variant="marigold">
+            {site.contact.booking.label}
+          </Button>
+          <Button
+            href={whatsappLink("Hi Raghav, I'd like to talk about my finances.")}
+            external
+            variant="outline-on-ink"
+          >
             Message on WhatsApp
           </Button>
           <Button href={site.contact.phones[0].href} variant="outline-on-ink">

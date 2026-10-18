@@ -1,19 +1,52 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
 /*
-  Palette: committed marigold on warm paper, with ink tinted toward the same hue.
-  Each venture keeps a color lifted from its own identity.
+  Colours and fonts follow the shared Design Lab (../DesignLab, RULES.md): tokens.css
+  derives the colour roles from the four palette colours below, and the Lab's palette and
+  font previews (dev only) work by changing them.
+
+  Palette: committed marigold on warm paper, with ink tinted toward the same hue. The site's
+  own colour names (paper, ink, marigold…) are taken from it in @theme, so components keep
+  their names and still follow a preview. Each venture keeps a colour lifted from its own
+  identity, outside the palette.
 */
+:root {
+  --palette-background: oklch(0.974 0.009 85);
+  --palette-foreground: oklch(0.205 0.018 55);
+  --palette-muted: oklch(0.43 0.02 60);
+  --palette-accent: oklch(0.83 0.155 78);
+
+  /* Hairlines at the site's own strength (the role's default is a touch heavier). */
+  --tune-base-line: color-mix(in oklab, var(--palette-foreground) 14%, transparent);
+
+  /* Archivo for everything, set condensed and heavy for display type (font-display). */
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+
+  /* One column with 16px margins on phones, 32px from sm, a 12-column grid from lg. */
+  --grid-columns: 1;
+  --grid-gutter: 2rem;
+  --grid-margin: 1rem;
+  --grid-max: 90rem;
+  --grid-baseline: 0.5rem;
+}
+
+@media (width >= 40rem) {
+  :root {
+    --grid-margin: 2rem;
+  }
+}
+
 @theme {
   --notch-size: 28px;
 
-  --color-paper: oklch(0.974 0.009 85);
+  --color-paper: var(--palette-background);
+  --color-ink: var(--palette-foreground);
+  --color-ink-soft: var(--palette-muted);
+  --color-marigold: var(--palette-accent);
+  /* Shades of the palette, derived from it below where the browser can. */
   --color-paper-2: oklch(0.942 0.014 82);
-  --color-ink: oklch(0.205 0.018 55);
-  --color-ink-soft: oklch(0.43 0.02 60);
-  --color-line: oklch(0.205 0.018 55 / 0.14);
-
-  --color-marigold: oklch(0.83 0.155 78);
   --color-marigold-deep: oklch(0.72 0.16 65);
 
   /* AdsXcell's colour. Never name a colour (or any class) "ads": ad blockers hide elements
@@ -24,12 +57,20 @@
   --color-foundation: oklch(0.43 0.075 240);
   --color-foundation-soft: oklch(0.88 0.035 230);
 
-  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
   --text-headline: clamp(2.5rem, 6.4vw, 5.75rem);
+}
+
+/* The second paper and the deeper marigold, as offsets from the palette, so a Lab preview
+   carries them along. Where relative colours aren't supported, the fixed values above stand. */
+@supports (color: oklch(from red l c h)) {
+  :root {
+    --color-paper-2: oklch(from var(--palette-background) calc(l - 0.032) calc(c + 0.005) calc(h - 3));
+    --color-marigold-deep: oklch(from var(--palette-accent) calc(l - 0.11) calc(c + 0.005) calc(h - 13));
+  }
 }
 
 @layer base {
@@ -79,7 +120,7 @@
 }
 
 @utility font-display {
-  font-family: var(--font-sans);
+  font-family: var(--font-display);
   font-stretch: 72%;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -101,6 +142,7 @@
 @media (width >= 64rem) {
   :root {
     --notch-size: 56px;
+    --grid-columns: 12;
   }
 }
 

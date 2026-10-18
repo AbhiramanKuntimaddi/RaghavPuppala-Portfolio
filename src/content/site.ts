@@ -23,6 +23,8 @@ export const site = {
     days: { short: "Mon - Fri", long: "Monday - Friday" },
     hours: "9 AM - 5 PM",
     demat: "http://p.njw.bz/99909",
+    // His free 30-minute online financial planning review, booked on Calendly.
+    booking: { label: "Book a free review", href: "https://calendly.com/raghavpuppala_financial_advisor/30min" },
   },
 
   socials: [

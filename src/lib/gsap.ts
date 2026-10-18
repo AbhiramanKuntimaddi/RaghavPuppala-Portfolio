@@ -32,6 +32,10 @@ ScrollTrigger.config({ ignoreMobileResize: true });
 // the reader was, with every scroll animation set for the wrong place.
 if (typeof window !== "undefined") ScrollTrigger.clearScrollMemory("manual");
 
+// In development, the Design Lab's motion speed control slows GSAP too, through window.gsap.
+if (process.env.NODE_ENV === "development" && typeof window !== "undefined")
+  (window as Window & { gsap?: typeof gsap }).gsap = gsap;
+
 export const MOTION_OK = "(prefers-reduced-motion: no-preference)";
 export const MOTION_REDUCED = "(prefers-reduced-motion: reduce)";
 

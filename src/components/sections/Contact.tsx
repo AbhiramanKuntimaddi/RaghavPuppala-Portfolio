@@ -41,9 +41,12 @@ export function Contact() {
                 The first conversation is free. Tell me what you&rsquo;re planning for and I&rsquo;ll reply the same
                 day.
               </p>
-              {/* Wrapped, so its entrance and the button's own pointer drift don't share a transform. */}
-              <div className="mt-8">
-                <Button href={whatsappLink(HELLO)} external size="lg">
+              {/* Wrapped, so their entrance and the buttons' own pointer drift don't share a transform. */}
+              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+                <Button href={site.contact.booking.href} external size="lg">
+                  {site.contact.booking.label}
+                </Button>
+                <Button href={whatsappLink(HELLO)} external size="lg" variant="outline">
                   Message on WhatsApp
                 </Button>
               </div>
@@ -60,6 +63,21 @@ export function Contact() {
                 <span data-line aria-hidden className="absolute inset-0 origin-left bg-ink" />
               </div>
               <ul>
+                {/* The free review first: the one detail that books a time rather than starts a chat. */}
+                <Row
+                  label="Book"
+                  aside={
+                    <span className="mr-1 bg-ink px-3 py-1.5 text-[0.7rem] font-semibold tracking-[0.12em] whitespace-nowrap text-marigold uppercase [clip-path:polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)] sm:text-xs">
+                      Online
+                    </span>
+                  }
+                >
+                  <Links>
+                    <DetailLink href={site.contact.booking.href} external>
+                      Free 30-min review
+                    </DetailLink>
+                  </Links>
+                </Row>
                 <Row label="Call">
                   <Links>
                     {site.contact.phones.map((p) => (

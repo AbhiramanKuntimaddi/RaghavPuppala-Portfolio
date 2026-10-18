@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Newsreader } from "next/font/google";
+import { DesignLab, type DesignLabConfig } from "design-lab";
 import { Cuts } from "@/components/layout/Cuts";
 import { Flourishes } from "@/components/layout/Flourishes";
 import { OpticalAlign } from "@/components/layout/OpticalAlign";
@@ -20,6 +21,15 @@ const newsreader = Newsreader({
   subsets: ["latin"],
   style: ["italic"],
 });
+
+// The shared Design Lab (../DesignLab), dev only: palette and font previews, Inspect, Audit
+// and the layout overlays. The site's colours come from its palette (globals.css), so the
+// Lab needs no mapping, only this site's names for things.
+const labConfig: DesignLabConfig = {
+  fonts: ["sans", "display"],
+  labels: { palette: "Colours", sans: "Text", display: "Display type" },
+  current: { sans: "Archivo", display: "Archivo (condensed)" },
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -73,6 +83,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Cuts />
         </SmoothScroll>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        {process.env.NODE_ENV === "development" && <DesignLab config={labConfig} />}
       </body>
     </html>
   );

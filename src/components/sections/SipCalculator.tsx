@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useMemo, useRef, useState } from "react";
-import { whatsappLink } from "@/content/site";
+import { site, whatsappLink } from "@/content/site";
 import { formatINR, formatINRShort } from "@/lib/format";
 import { gsap, MOTION_OK, useGSAP } from "@/lib/gsap";
 import { Button } from "@/components/ui/Button";
@@ -279,8 +279,14 @@ export function SipCalculator() {
             </div>
           </dl>
 
-          <div data-calc="after" className="mt-10 self-start lg:mt-8 short:mt-6">
-            <Button href={whatsappLink(message)} external variant="ink-on-paper">
+          <div
+            data-calc="after"
+            className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 self-start lg:mt-8 short:mt-6"
+          >
+            <Button href={site.contact.booking.href} external variant="ink-on-paper">
+              {site.contact.booking.label}
+            </Button>
+            <Button href={whatsappLink(message)} external variant="outline-on-paper">
               Plan this with Raghav
             </Button>
           </div>

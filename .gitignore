@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Design Lab, synced from ../DesignLab (dev only; .design-lab/stub.tsx and the types are committed)
+/.design-lab/lab/
+/.design-lab/state.json

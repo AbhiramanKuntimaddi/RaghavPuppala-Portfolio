@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { site, whatsappLink } from "@/content/site";
+import { site } from "@/content/site";
 import { Button } from "@/components/ui/Button";
 import { DocumentTitle } from "@/components/ui/DocumentTitle";
 import { Headline } from "@/components/ui/Headline";
@@ -49,8 +49,8 @@ export default function NotFound() {
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
               <Button href="/">Back to the homepage</Button>
-              <Button href={whatsappLink("Hi Raghav, I'd like to talk about my finances.")} external variant="outline">
-                Message on WhatsApp
+              <Button href={site.contact.booking.href} external variant="outline">
+                {site.contact.booking.label}
               </Button>
             </div>
           </div>

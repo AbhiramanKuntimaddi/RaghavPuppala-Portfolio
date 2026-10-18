@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { site } from "@/content/site";
 import { gsap, MOTION_OK, useGSAP } from "@/lib/gsap";
+import { Button } from "@/components/ui/Button";
 import { JetIcon } from "@/components/ui/Jet";
 import { Headline } from "@/components/ui/Headline";
 
@@ -91,9 +92,15 @@ export function FlightPlan() {
               How a plan comes together
             </Headline>
           </div>
-          <p className="max-w-[34ch] text-lg text-paper/70">
-            Three steps, in order, with no surprises. You always know where we are and what comes next.
-          </p>
+          <div className="flex flex-col items-start gap-6">
+            <p className="max-w-[34ch] text-lg text-paper/70">
+              Three steps, in order, with no surprises. You always know where we are and what comes next.
+            </p>
+            {/* Step one, the brief, is the free review. */}
+            <Button href={site.contact.booking.href} external variant="marigold">
+              {site.contact.booking.label}
+            </Button>
+          </div>
         </div>
 
         <div ref={route} className="relative mt-16 md:mt-24">

@@ -276,11 +276,11 @@ export function Hero() {
               ))}
             </p>
             <div data-actions data-reveal className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 short:mt-6">
-              <Button href={whatsappLink("Hi Raghav, I'd like to talk about my finances.")} external>
-                Message on WhatsApp
+              <Button href={site.contact.booking.href} external>
+                {site.contact.booking.label}
               </Button>
-              <Button href={site.contact.phones[0].href} variant="outline">
-                {`Call ${site.contact.phones[0].display}`}
+              <Button href={whatsappLink("Hi Raghav, I'd like to talk about my finances.")} external variant="outline">
+                Message on WhatsApp
               </Button>
             </div>
           </div>

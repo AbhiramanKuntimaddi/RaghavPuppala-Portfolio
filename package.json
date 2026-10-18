@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "predev": "node scripts/design-lab.mjs",
+    "dev": "node .design-lab/helper.mjs next dev",
+    "lab:sync": "node scripts/design-lab.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

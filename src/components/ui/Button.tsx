@@ -38,6 +38,14 @@ const variants = {
     fillFg: "var(--color-marigold)",
     inner: "var(--color-marigold)",
   },
+  // Secondary button on the calculator's paper: an ink outline, filled with ink on hover.
+  "outline-on-paper": {
+    bg: "var(--color-ink)",
+    fg: "var(--color-ink)",
+    fill: "var(--color-ink)",
+    fillFg: "var(--color-paper)",
+    inner: "var(--color-paper-2)",
+  },
   // Secondary button on ink (the mobile menu): a cream outline, filled with cream on hover.
   "outline-on-ink": {
     bg: "var(--color-paper)",
