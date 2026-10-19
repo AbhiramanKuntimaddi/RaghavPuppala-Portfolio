@@ -1,6 +1,6 @@
 # Raghav Puppala
 
-The website of **Raghav Puppala**, an Indian Air Force veteran and MDRT-qualified financial consultant in Hyderabad. It's a single page that leads with his wealth practice (investments, insurance and retirement planning) and then introduces his three ventures: AdsXcell, SP Design Studio and the HridaySpandana Foundation.
+The website of **Raghav Puppala**, an Indian Air Force veteran and MDRT-qualified financial advisor in Hyderabad. It's a single page that leads with his wealth practice (investments, insurance and retirement planning) and then introduces his three ventures: AdsXcell, SP Design Studio and the HridaySpandana Foundation.
 
 It replaces the current site at [raghavpuppala.com](https://raghavpuppala.com).
 
@@ -11,7 +11,7 @@ It replaces the current site at [raghavpuppala.com](https://raghavpuppala.com).
 ![GSAP 3](https://img.shields.io/badge/GSAP-3-0AE448?logo=greensock&logoColor=black)
 ![Lenis](https://img.shields.io/badge/Lenis-smooth_scroll-231A14)
 
-![The hero: "Your money, planned like a mission." beside Raghav's portrait, with his credentials (500+ client families, 8+ years, MDRT, IRDAI, AMFI) along the bottom](.github/preview.jpg)
+![The hero: "Your money, planned like a mission." beside Raghav's portrait, with his credentials (500+ families guided, 15+ years experience, MDRT, IRDAI, AMFI) along the bottom](.github/preview.jpg)
 
 ## Highlights
 

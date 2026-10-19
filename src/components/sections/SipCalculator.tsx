@@ -1,10 +1,11 @@
 "use client";
 
 import { useId, useMemo, useRef, useState } from "react";
-import { site, whatsappLink } from "@/content/site";
+import { site } from "@/content/site";
 import { formatINR, formatINRShort } from "@/lib/format";
 import { gsap, MOTION_OK, useGSAP } from "@/lib/gsap";
 import { Button } from "@/components/ui/Button";
+import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { Headline } from "@/components/ui/Headline";
 
 const AMOUNTS = [500, 1000, 2000, 3000, 5000, 7500, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 75000, 100000];
@@ -286,9 +287,14 @@ export function SipCalculator() {
             <Button href={site.contact.booking.href} external variant="ink-on-paper">
               {site.contact.booking.label}
             </Button>
-            <Button href={whatsappLink(message)} external variant="outline-on-paper">
+            <WhatsAppButton
+              message={message}
+              messageInQr
+              title="Scan to send Raghav this plan"
+              variant="outline-on-paper"
+            >
               Plan this with Raghav
-            </Button>
+            </WhatsAppButton>
           </div>
 
           <p data-calc="after" className="mt-8 max-w-[60ch] text-xs leading-relaxed text-ink-soft lg:mt-6">

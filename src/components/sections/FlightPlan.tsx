@@ -96,7 +96,7 @@ export function FlightPlan() {
             <p className="max-w-[34ch] text-lg text-paper/70">
               Three steps, in order, with no surprises. You always know where we are and what comes next.
             </p>
-            {/* Step one, the brief, is the free review. */}
+            {/* Step one, the brief, is the free session. */}
             <Button href={site.contact.booking.href} external variant="marigold">
               {site.contact.booking.label}
             </Button>

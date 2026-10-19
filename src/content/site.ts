@@ -9,10 +9,10 @@ export const whatsappLink = (message?: string) =>
 export const site = {
   name: "Raghav Puppala",
   url: "https://raghavpuppala.com",
-  role: "Financial consultant",
+  role: "Financial advisor",
   city: "Hyderabad",
   description:
-    "MDRT-qualified financial consultant in Hyderabad. Investments, insurance and retirement planning for families, from an Indian Air Force veteran with 8+ years in practice.",
+    "MDRT-qualified financial advisor in Hyderabad, helping families protect, build and grow wealth with clarity and confidence. 15+ years of experience, 500+ families guided, and an Indian Air Force veteran.",
 
   contact: {
     phones: [
@@ -23,8 +23,18 @@ export const site = {
     days: { short: "Mon - Fri", long: "Monday - Friday" },
     hours: "9 AM - 5 PM",
     demat: "http://p.njw.bz/99909",
-    // His free 30-minute online financial planning review, booked on Calendly.
-    booking: { label: "Book a free review", href: "https://calendly.com/raghavpuppala_financial_advisor/30min" },
+    // His free 30-minute online Financial Fitness Session, booked on Calendly.
+    booking: { label: "Book a free session", href: "https://calendly.com/raghavpuppala_financial_advisor/30min" },
+  },
+
+  // The free first session, as Raghav describes it: 30 minutes, online, no obligation.
+  session: {
+    name: "Financial fitness session",
+    covers: [
+      { title: "Risk evaluation", detail: "Life, health and income protection" },
+      { title: "Goal planning", detail: "Education, retirement and dreams" },
+      { title: "Wealth creation", detail: "Systematic, disciplined growth" },
+    ],
   },
 
   socials: [
@@ -41,9 +51,9 @@ export const site = {
   // The credentials band under the hero.
   // `count` makes a value tick up from zero; the rest decode letter by letter.
   credentials: [
-    { value: "500+", count: 500, suffix: "+", label: "Client families" },
-    { value: "8+", count: 8, suffix: "+", label: "Years in practice" },
-    { value: "MDRT", label: "Qualified financial consultant" },
+    { value: "500+", count: 500, suffix: "+", label: "Families guided" },
+    { value: "15+", count: 15, suffix: "+", label: "Years experience" },
+    { value: "MDRT", label: "Qualified financial advisor" },
     { value: "IRDAI", label: "Licensed advisor" },
     { value: "AMFI", label: "Registered MF distributor" },
   ],
@@ -63,7 +73,7 @@ export const site = {
       [
         { text: "and " },
         { text: "MDRT-qualified", as: "strong" },
-        { text: " financial consultant. I help Hyderabad families invest, insure and retire on schedule." },
+        { text: " financial advisor. I help families protect, build and grow wealth with clarity and confidence." },
       ],
     ],
   },
@@ -158,7 +168,7 @@ export const site = {
   ],
 
   footer: {
-    tagline: "Planned like a mission.",
+    tagline: "Clarity · Confidence · Care.",
     credit: { name: "Abhiraman Kuntimaddi", href: "https://abhiramankuntimaddi.com" },
   },
 

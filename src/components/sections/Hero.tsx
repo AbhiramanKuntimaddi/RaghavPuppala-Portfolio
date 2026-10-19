@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import { useId, useRef } from "react";
-import { site, whatsappLink } from "@/content/site";
+import { site } from "@/content/site";
 import { gsap, MOTION_OK, MOTION_REDUCED, SplitText, useGSAP } from "@/lib/gsap";
 import { Button } from "@/components/ui/Button";
+import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { Credentials } from "./Credentials";
 import { JET_PATH } from "@/components/ui/Jet";
 import { alignOptically } from "@/lib/optical";
@@ -279,9 +280,9 @@ export function Hero() {
               <Button href={site.contact.booking.href} external>
                 {site.contact.booking.label}
               </Button>
-              <Button href={whatsappLink("Hi Raghav, I'd like to talk about my finances.")} external variant="outline">
+              <WhatsAppButton message="Hi Raghav, I'd like to talk about my finances." variant="outline">
                 Message on WhatsApp
-              </Button>
+              </WhatsAppButton>
             </div>
           </div>
 

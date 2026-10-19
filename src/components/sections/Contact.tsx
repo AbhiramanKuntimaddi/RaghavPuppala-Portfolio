@@ -2,11 +2,13 @@
 
 import { site, whatsappLink } from "@/content/site";
 import { Button } from "@/components/ui/Button";
+import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
+import { WhatsAppQR } from "@/components/ui/WhatsAppQR";
 import { bandHandlers, bandOrigin } from "@/lib/band";
 import { JetLanding } from "./JetLanding";
 import { Headline } from "@/components/ui/Headline";
 
-// The size every contact detail is set in: numbers, email, socials and hours.
+// The size every detail on the board is set in: numbers, email, socials and hours.
 const value = "font-display text-[clamp(1.25rem,2.4vw,2rem)] uppercase";
 
 const HELLO = "Hi Raghav, I'd like to talk about my finances.";
@@ -21,111 +23,119 @@ export function Contact() {
       className="notch overflow-x-clip bg-marigold [--notch:var(--color-foundation)] [--edge-shade:var(--edge-shade-mid)] [clip-path:polygon(0_calc(-1*var(--notch-lift)),100%_calc(-1*var(--notch-lift)),100%_calc(100%-var(--notch-size)),calc(100%-var(--notch-size))_100%,0_100%)] pt-20 sm:pt-24 lg:pt-28"
     >
       <div className="mx-auto max-w-360 px-4 sm:px-8">
-        <p data-scramble className="mb-5 text-sm font-semibold tracking-wide uppercase">
-          Contact
-        </p>
-        <Headline id="contact-title" className="max-w-[13ch] font-display text-[clamp(3.5rem,10vw,10rem)] uppercase">
-          Let&rsquo;s talk about your plan
-        </Headline>
-
-        <div className="mt-12 grid gap-12 lg:mt-14 lg:grid-cols-12 lg:gap-8">
-          {/* Ruled like the list beside it (desktop): the rule draws in, then the copy follows. */}
-          <div data-lines className="lg:col-span-5 xl:col-span-4">
-            <div data-lined className="relative lg:pt-[2.65rem]">
-              <span
-                data-line
-                aria-hidden
-                className="absolute inset-x-0 top-0 hidden h-px origin-left bg-ink lg:block"
-              />
-              <p className="max-w-[34ch] text-lg leading-relaxed text-ink/80">
-                The first conversation is free. Tell me what you&rsquo;re planning for and I&rsquo;ll reply the same
-                day.
-              </p>
-              {/* Wrapped, so their entrance and the buttons' own pointer drift don't share a transform. */}
-              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-                <Button href={site.contact.booking.href} external size="lg">
-                  {site.contact.booking.label}
-                </Button>
-                <Button href={whatsappLink(HELLO)} external size="lg" variant="outline">
-                  Message on WhatsApp
-                </Button>
-              </div>
+        {/* The invitation: headline, the free session and what it covers, and the two ways in,
+            with the WhatsApp QR from his flyer beside it on desktop. */}
+        <div className="grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-8">
+          <div className="lg:col-span-8 xl:col-span-9">
+            <p data-scramble className="mb-5 text-sm font-semibold tracking-wide uppercase">
+              Contact
+            </p>
+            <Headline
+              id="contact-title"
+              className="max-w-[13ch] font-display text-[clamp(3.5rem,10vw,10rem)] uppercase"
+            >
+              Let&rsquo;s talk about your plan
+            </Headline>
+            <p className="mt-8 max-w-[52ch] text-lg leading-relaxed text-ink/80">
+              Reserve a free, no-obligation 30-minute {site.session.name.toLowerCase()}, online at a time that suits
+              you. We&rsquo;ll go through:
+            </p>
+            {/* What the session covers, each under a rule that draws in on arrival. */}
+            <ul data-lines className="mt-6 grid max-w-3xl gap-x-8 gap-y-4 sm:grid-cols-3">
+              {site.session.covers.map((c) => (
+                <li key={c.title} data-lined className="relative pt-3">
+                  <span data-line aria-hidden className="absolute inset-x-0 top-0 h-px origin-left bg-ink" />
+                  <p className="font-display text-xl uppercase">{c.title}</p>
+                  <p className="mt-1 text-sm text-ink/70">{c.detail}</p>
+                </li>
+              ))}
+            </ul>
+            {/* Wrapped, so their entrance and the buttons' own pointer drift don't share a transform. */}
+            <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <Button href={site.contact.booking.href} external size="lg">
+                {site.contact.booking.label}
+              </Button>
+              <WhatsAppButton message={HELLO} size="lg" variant="outline">
+                Message on WhatsApp
+              </WhatsAppButton>
             </div>
           </div>
 
-          <div className="lg:col-span-7 xl:col-span-8">
-            {/* Every way to reach him, one row per kind: a small label, then each detail as
-                its own link in the large type. Hover: the briefing band sweeps across the
-                link you're on, not the whole row. On arrival the rules draw in one after
-                another, each row's details just behind its rule. */}
-            <div data-lines>
-              <div data-lined className="relative h-px">
-                <span data-line aria-hidden className="absolute inset-0 origin-left bg-ink" />
-              </div>
-              <ul>
-                {/* The free review first: the one detail that books a time rather than starts a chat. */}
-                <Row
-                  label="Book"
-                  aside={
-                    <span className="mr-1 bg-ink px-3 py-1.5 text-[0.7rem] font-semibold tracking-[0.12em] whitespace-nowrap text-marigold uppercase [clip-path:polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)] sm:text-xs">
-                      Online
-                    </span>
-                  }
-                >
-                  <Links>
-                    <DetailLink href={site.contact.booking.href} external>
-                      Free 30-min review
-                    </DetailLink>
-                  </Links>
-                </Row>
-                <Row label="Call">
-                  <Links>
-                    {site.contact.phones.map((p) => (
-                      <DetailLink key={p.href} href={p.href}>
-                        <span className="tabular">{p.display}</span>
-                      </DetailLink>
-                    ))}
-                  </Links>
-                </Row>
-                <Row label="Email">
-                  <Links>
-                    <DetailLink href={`mailto:${site.contact.email}`}>
-                      {/* If the address has to wrap, let it break cleanly after the @. */}
-                      {site.contact.email.split("@")[0]}@<wbr />
-                      {site.contact.email.split("@")[1]}
-                    </DetailLink>
-                  </Links>
-                </Row>
-                <Row label="Follow">
-                  <Links>
-                    {site.socials.map((s) => (
-                      <DetailLink key={s.label} href={s.href} external>
-                        {s.label}
-                      </DetailLink>
-                    ))}
-                  </Links>
-                </Row>
-                {/* Office hours close the list: same label and type, not a link. */}
-                <Row
-                  label="Hours"
-                  aside={
-                    // The time zone as a small plate, trimmed like the buttons.
-                    <span className="mr-1 bg-ink px-3 py-1.5 text-[0.7rem] font-semibold tracking-[0.12em] whitespace-nowrap text-marigold uppercase [clip-path:polygon(0_0,calc(100%-8px)_0,100%_8px,100%_100%,0_100%)] sm:text-xs">
-                      <span className="hidden sm:inline">{site.city} · </span>IST
-                    </span>
-                  }
-                >
-                  <p className={`${value} tabular`}>
-                    <span className="inline-block whitespace-nowrap">
-                      <span className="sm:hidden">{site.contact.days.short}</span>
-                      <span className="hidden sm:inline">{site.contact.days.long}</span>
-                      <span className="mx-2 text-ink/40">·</span>
-                    </span>
-                    <span className="inline-block whitespace-nowrap">{site.contact.hours}</span>
-                  </p>
-                </Row>
-              </ul>
+          {/* Desktop: the QR from his flyer, to scan with a phone. Phones have the button. */}
+          {/* One block as wide as the code, set at the right, with the caption centred under it. */}
+          <figure className="hidden w-44 lg:col-span-4 lg:block lg:justify-self-end xl:col-span-3">
+            <WhatsAppQR href={whatsappLink()} quiet={0} className="block w-full" />
+            <figcaption className="mt-5 text-center">
+              <span className="block text-sm font-semibold tracking-wide uppercase">Scan to WhatsApp</span>
+              <span className="mt-1 block font-display text-2xl uppercase tabular">
+                {site.contact.phones[0].display}
+              </span>
+            </figcaption>
+          </figure>
+        </div>
+
+        {/* Every way to reach him, as a departure board: ink, with marigold lettering, one row
+            per way in (Via), its details as links (Details), and when it's open (When). The
+            labels flip through noise as the board arrives, like split-flap letters. */}
+        <div className="mt-14 bg-ink px-5 pt-2 pb-3 text-marigold [clip-path:polygon(0_0,calc(100%-24px)_0,100%_24px,100%_100%,0_100%)] sm:px-8 sm:pt-4 sm:pb-5 lg:mt-16">
+          <div data-lines>
+            <div
+              data-lined
+              className="relative hidden grid-cols-[8rem_1fr_minmax(10rem,auto)] gap-x-6 py-3 text-xs font-semibold tracking-[0.14em] text-marigold/60 uppercase md:grid"
+            >
+              <span data-line aria-hidden className="absolute inset-x-0 bottom-0 h-px origin-left bg-marigold/40" />
+              <span>Via</span>
+              <span>Details</span>
+              <span className="text-right">When</span>
             </div>
+            <ul>
+              {/* The free session first: the one way in that books a time rather than starts a chat. */}
+              <Row via="Book" when={<>30 min · Online</>}>
+                <Links>
+                  <DetailLink href={site.contact.booking.href} external>
+                    {site.session.name}
+                  </DetailLink>
+                </Links>
+              </Row>
+              <Row via="Call" when={site.contact.days.short}>
+                <Links>
+                  {site.contact.phones.map((p) => (
+                    <DetailLink key={p.href} href={p.href}>
+                      <span className="tabular">{p.display}</span>
+                    </DetailLink>
+                  ))}
+                </Links>
+              </Row>
+              <Row via="Email" when="Same-day reply">
+                <Links>
+                  <DetailLink href={`mailto:${site.contact.email}`}>
+                    {/* If the address has to wrap, let it break cleanly after the @. */}
+                    {site.contact.email.split("@")[0]}@<wbr />
+                    {site.contact.email.split("@")[1]}
+                  </DetailLink>
+                </Links>
+              </Row>
+              <Row via="Follow" when="Anytime">
+                <Links>
+                  {site.socials.map((s) => (
+                    <DetailLink key={s.label} href={s.href} external>
+                      {s.label}
+                    </DetailLink>
+                  ))}
+                </Links>
+              </Row>
+              {/* Office hours close the board: same type, not a link. */}
+              <Row via="Hours" when={`${site.city} · IST`}>
+                <p className={`${value} tabular`}>
+                  <span className="inline-block whitespace-nowrap">
+                    <span className="sm:hidden">{site.contact.days.short}</span>
+                    <span className="hidden sm:inline">{site.contact.days.long}</span>
+                    <span className="mx-2 text-marigold/40">·</span>
+                  </span>
+                  <span className="inline-block whitespace-nowrap">{site.contact.hours}</span>
+                </p>
+              </Row>
+            </ul>
           </div>
         </div>
       </div>
@@ -138,17 +148,25 @@ export function Contact() {
   );
 }
 
-// One row of the contact list: a small label, its details, and an optional aside on the right.
-function Row({ label, aside, children }: { label: string; aside?: React.ReactNode; children: React.ReactNode }) {
+// One row of the board: the way in, its details, and when it's open. On phones the way in
+// and when share the first line, with the details below at full width.
+function Row({ via, when, children }: { via: string; when: React.ReactNode; children: React.ReactNode }) {
   return (
     <li
       data-lined
-      className="relative grid grid-cols-[5.5rem_1fr_auto] items-center gap-4 py-4 sm:grid-cols-[8rem_1fr_auto] sm:py-5"
+      className="relative grid grid-cols-[1fr_auto] items-center gap-x-6 gap-y-2 py-4 md:grid-cols-[8rem_1fr_minmax(10rem,auto)] md:py-5"
     >
-      <span data-line aria-hidden className="absolute inset-x-0 bottom-0 h-px origin-left bg-ink/20" />
-      <p className="text-sm font-semibold tracking-wide uppercase">{label}</p>
-      <div className="min-w-0">{children}</div>
-      {aside ?? <span />}
+      <span data-line aria-hidden className="absolute inset-x-0 bottom-0 h-px origin-left bg-marigold/20" />
+      <p data-scramble className="text-sm font-semibold tracking-[0.12em] uppercase">
+        {via}
+      </p>
+      <div className="col-span-2 min-w-0 md:order-none md:col-span-1 max-md:order-last">{children}</div>
+      <p
+        data-scramble
+        className="text-right text-xs font-semibold tracking-[0.12em] text-marigold/80 uppercase tabular"
+      >
+        {when}
+      </p>
     </li>
   );
 }
@@ -159,20 +177,20 @@ function Links({ children }: { children: React.ReactNode }) {
   return <div className="-ml-2 flex flex-col items-start sm:flex-row sm:flex-wrap sm:gap-x-4">{children}</div>;
 }
 
-// A detail as a link in the large type. Hover: an ink band sweeps in behind just this link
-// from the side the pointer came in on (and out the side it leaves by), the text turns
-// marigold, and the small arrow nudges out.
+// A detail as a link in the large type, marigold on the board. Hover: a marigold band sweeps
+// in behind just this link from the side the pointer came in on (and out the side it leaves
+// by), the text turns ink, and the small arrow nudges out.
 function DetailLink({ href, external, children }: { href: string; external?: boolean; children: React.ReactNode }) {
   return (
     <a
       href={href}
       {...(external ? { target: "_blank", rel: "noopener" } : {})}
       {...bandHandlers}
-      className={`group relative inline-flex max-w-full items-center gap-2 px-2 py-1 ${value} transition-colors duration-300 hover:text-marigold focus-visible:text-marigold`}
+      className={`group relative inline-flex max-w-full items-center gap-2 px-2 py-1 ${value} transition-colors duration-300 hover:text-ink focus-visible:text-ink`}
     >
       <span
         aria-hidden
-        className={`absolute inset-0 scale-x-0 bg-ink transition-transform duration-500 ease-out-expo [clip-path:polygon(0_0,calc(100%-10px)_0,100%_10px,100%_100%,0_100%)] group-hover:scale-x-100 group-focus-visible:scale-x-100 ${bandOrigin}`}
+        className={`absolute inset-0 scale-x-0 bg-marigold transition-transform duration-500 ease-out-expo [clip-path:polygon(0_0,calc(100%-10px)_0,100%_10px,100%_100%,0_100%)] group-hover:scale-x-100 group-focus-visible:scale-x-100 ${bandOrigin}`}
       />
       <span className="relative min-w-0 wrap-break-word">{children}</span>
       <svg

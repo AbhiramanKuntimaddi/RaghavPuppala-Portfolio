@@ -92,6 +92,8 @@ export function Testimonial() {
     <section
       ref={root}
       aria-label="What clients say"
+      // Most of the way down: where the WhatsApp reminder (WhatsAppToast) may appear.
+      data-qr-toast
       data-header-tone="paper"
       onFocus={(e) => e.target.matches(":focus-visible") && pause()}
       onBlur={(e) => !e.currentTarget.contains(e.relatedTarget) && resume()}

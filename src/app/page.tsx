@@ -8,6 +8,7 @@ import { Practice } from "@/components/sections/Practice";
 import { SipCalculator } from "@/components/sections/SipCalculator";
 import { Testimonial } from "@/components/sections/Testimonial";
 import { Ventures } from "@/components/sections/Ventures";
+import { WhatsAppToast } from "@/components/layout/WhatsAppToast";
 
 export default function Home() {
   return (
@@ -25,6 +26,7 @@ export default function Home() {
         <Contact />
       </main>
       <Footer />
+      <WhatsAppToast />
     </>
   );
 }

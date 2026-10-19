@@ -98,7 +98,9 @@ type Props = {
   shortLabel?: string;
   /** Drop the arrow cell below `sm`, for tight spots like the phone header. */
   compactOnMobile?: boolean;
-};
+  /** For a button that opens something on the page (WhatsAppButton's QR card). */
+  onClick?: React.MouseEventHandler<HTMLAnchorElement>;
+} & Pick<React.AriaAttributes, "aria-haspopup" | "aria-expanded" | "aria-controls">;
 
 // Squared button with one clipped corner. On hover a briefing band sweeps across
 // behind the label and the arrow launches out of its cell. On mouse devices it leans
@@ -112,6 +114,8 @@ export function Button({
   className = "",
   shortLabel,
   compactOnMobile,
+  onClick,
+  ...aria
 }: Props) {
   const ref = useRef<HTMLAnchorElement>(null);
   const v: { bg: string; fg: string; fill: string; fillFg: string; inner?: string } = variants[variant];
@@ -158,6 +162,8 @@ export function Button({
     <a
       ref={ref}
       href={href}
+      onClick={onClick}
+      {...aria}
       {...bandHandlers}
       {...(external ? { target: "_blank", rel: "noopener" } : {})}
       style={style}
