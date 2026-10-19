@@ -19,8 +19,7 @@ function futureValue(monthly: number, annualRate: number, months: number) {
   return monthly * ((Math.pow(1 + i, months) - 1) / i) * (1 + i);
 }
 
-// Value and invested amount at evenly spaced points, so every scenario has
-// the same number of points and the curve can tween between them.
+// Evenly spaced points, so the curve can tween between scenarios.
 function series(monthly: number, rate: number, years: number) {
   const value: number[] = [];
   const invested: number[] = [];
@@ -70,8 +69,7 @@ export function SipCalculator() {
   const shown = useRef<Frame | null>(null);
   const tween = useRef<gsap.core.Tween | null>(null);
 
-  // One tween blends the whole frame (curve, scale, headline) from wherever it
-  // is now to the new scenario, so the parts can never fall out of step.
+  // One tween for the whole frame, so curve, scale and headline stay in step.
   useGSAP(
     () => {
       const to: Frame = { value: target.value, invested: target.invested, max: Math.max(total, 1), total };
@@ -102,12 +100,9 @@ export function SipCalculator() {
     { dependencies: [target, total], scope: root },
   );
 
-  // Desktop: the section holds still while it builds (sliders arrive, the result rises,
-  // the chart draws left to right, then the breakdown and CTA) and lets go once it's
-  // complete. The sliders work the whole time. Phones: the same pieces reveal on entry.
+  // Desktop: holds while it builds, then lets go. Phones: reveals on entry.
   useGSAP(
     () => {
-      // "all" keeps the callback running when neither named condition matches.
       gsap.matchMedia().add({ wide: "(min-width: 1024px)", motion: MOTION_OK, all: "all" }, (ctx) => {
         const { wide, motion } = ctx.conditions as { wide: boolean; motion: boolean };
         if (!motion) return;
@@ -147,7 +142,6 @@ export function SipCalculator() {
           .from(result, { y: 40, autoAlpha: 0, stagger: 0.15, duration: 0.6 }, 0.3)
           .fromTo(chart, reveal, { ...revealed, duration: 1.2, ease: "power1.inOut" }, 0.6)
           .from(after, { y: 24, autoAlpha: 0, stagger: 0.15, duration: 0.5 }, ">-0.3")
-          // A short hold so the finished calculator sits on screen before the page moves on.
           .to({}, { duration: 0.6 });
       });
     },
@@ -291,7 +285,7 @@ export function SipCalculator() {
               message={message}
               messageInQr
               title="Scan to send Raghav this plan"
-              variant="outline-on-paper"
+              variant="outline-on-paper-2"
             >
               Plan this with Raghav
             </WhatsAppButton>

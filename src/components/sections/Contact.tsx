@@ -8,7 +8,6 @@ import { bandHandlers, bandOrigin } from "@/lib/band";
 import { JetLanding } from "./JetLanding";
 import { Headline } from "@/components/ui/Headline";
 
-// The size every detail on the board is set in: numbers, email, socials and hours.
 const value = "font-display text-[clamp(1.25rem,2.4vw,2rem)] uppercase";
 
 const HELLO = "Hi Raghav, I'd like to talk about my finances.";
@@ -18,13 +17,10 @@ export function Contact() {
     <section
       id="contact"
       aria-labelledby="contact-title"
-      // Clipped to cut the bottom-right corner over the footer, with room above the top edge
-      // for the shadow it casts on the section above (see notch, globals.css).
+      // Cuts the bottom-right corner over the footer; extends above the top for the edge shadow.
       className="notch overflow-x-clip bg-marigold [--notch:var(--color-foundation)] [--edge-shade:var(--edge-shade-mid)] [clip-path:polygon(0_calc(-1*var(--notch-lift)),100%_calc(-1*var(--notch-lift)),100%_calc(100%-var(--notch-size)),calc(100%-var(--notch-size))_100%,0_100%)] pt-20 sm:pt-24 lg:pt-28"
     >
       <div className="mx-auto max-w-360 px-4 sm:px-8">
-        {/* The invitation: headline, the free session and what it covers, and the two ways in,
-            with the WhatsApp QR from his flyer beside it on desktop. */}
         <div className="grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-8">
           <div className="lg:col-span-8 xl:col-span-9">
             <p data-scramble className="mb-5 text-sm font-semibold tracking-wide uppercase">
@@ -40,7 +36,6 @@ export function Contact() {
               Reserve a free, no-obligation 30-minute {site.session.name.toLowerCase()}, online at a time that suits
               you. We&rsquo;ll go through:
             </p>
-            {/* What the session covers, each under a rule that draws in on arrival. */}
             <ul data-lines className="mt-6 grid max-w-3xl gap-x-8 gap-y-4 sm:grid-cols-3">
               {site.session.covers.map((c) => (
                 <li key={c.title} data-lined className="relative pt-3">
@@ -50,7 +45,7 @@ export function Contact() {
                 </li>
               ))}
             </ul>
-            {/* Wrapped, so their entrance and the buttons' own pointer drift don't share a transform. */}
+            {/* Wrapped, so the entrance and the buttons' pointer drift don't share a transform. */}
             <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
               <Button href={site.contact.booking.href} external size="lg">
                 {site.contact.booking.label}
@@ -61,8 +56,7 @@ export function Contact() {
             </div>
           </div>
 
-          {/* Desktop: the QR from his flyer, to scan with a phone. Phones have the button. */}
-          {/* One block as wide as the code, set at the right, with the caption centred under it. */}
+          {/* Desktop only; phones have the WhatsApp button. */}
           <figure className="hidden w-44 lg:col-span-4 lg:block lg:justify-self-end xl:col-span-3">
             <WhatsAppQR href={whatsappLink()} quiet={0} className="block w-full" />
             <figcaption className="mt-5 text-center">
@@ -74,9 +68,7 @@ export function Contact() {
           </figure>
         </div>
 
-        {/* Every way to reach him, as a departure board: ink, with marigold lettering, one row
-            per way in (Via), its details as links (Details), and when it's open (When). The
-            labels flip through noise as the board arrives, like split-flap letters. */}
+        {/* Departure board. The labels scramble in like split-flap letters (Cuts). */}
         <div className="mt-14 bg-ink px-5 pt-2 pb-3 text-marigold [clip-path:polygon(0_0,calc(100%-24px)_0,100%_24px,100%_100%,0_100%)] sm:px-8 sm:pt-4 sm:pb-5 lg:mt-16">
           <div data-lines>
             <div
@@ -89,7 +81,6 @@ export function Contact() {
               <span className="text-right">When</span>
             </div>
             <ul>
-              {/* The free session first: the one way in that books a time rather than starts a chat. */}
               <Row via="Book" when={<>30 min · Online</>}>
                 <Links>
                   <DetailLink href={site.contact.booking.href} external>
@@ -109,7 +100,7 @@ export function Contact() {
               <Row via="Email" when="Same-day reply">
                 <Links>
                   <DetailLink href={`mailto:${site.contact.email}`}>
-                    {/* If the address has to wrap, let it break cleanly after the @. */}
+                    {/* Break after the @ if it has to wrap. */}
                     {site.contact.email.split("@")[0]}@<wbr />
                     {site.contact.email.split("@")[1]}
                   </DetailLink>
@@ -124,7 +115,6 @@ export function Contact() {
                   ))}
                 </Links>
               </Row>
-              {/* Office hours close the board: same type, not a link. */}
               <Row via="Hours" when={`${site.city} · IST`}>
                 <p className={`${value} tabular`}>
                   <span className="inline-block whitespace-nowrap">
@@ -140,7 +130,6 @@ export function Contact() {
         </div>
       </div>
 
-      {/* The jet comes in to land as the runway scrolls into view. */}
       <div className="mt-16 lg:mt-20">
         <JetLanding />
       </div>
@@ -148,8 +137,7 @@ export function Contact() {
   );
 }
 
-// One row of the board: the way in, its details, and when it's open. On phones the way in
-// and when share the first line, with the details below at full width.
+// On phones, Via and When share the first line, with the details below.
 function Row({ via, when, children }: { via: string; when: React.ReactNode; children: React.ReactNode }) {
   return (
     <li
@@ -171,15 +159,11 @@ function Row({ via, when, children }: { via: string; when: React.ReactNode; chil
   );
 }
 
-// Several details in one row: side by side, stacked on phones. The negative margin lines
-// the text (not the hover band's padding) up with the other rows.
+// The negative margin aligns the text (not the hover band's padding) with the other rows.
 function Links({ children }: { children: React.ReactNode }) {
   return <div className="-ml-2 flex flex-col items-start sm:flex-row sm:flex-wrap sm:gap-x-4">{children}</div>;
 }
 
-// A detail as a link in the large type, marigold on the board. Hover: a marigold band sweeps
-// in behind just this link from the side the pointer came in on (and out the side it leaves
-// by), the text turns ink, and the small arrow nudges out.
 function DetailLink({ href, external, children }: { href: string; external?: boolean; children: React.ReactNode }) {
   return (
     <a

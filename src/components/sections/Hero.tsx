@@ -11,21 +11,16 @@ import { JET_PATH } from "@/components/ui/Jet";
 import { alignOptically } from "@/lib/optical";
 import portrait from "../../../public/raghav-puppala.jpg";
 
-// How far along its route the jet gets during the intro; scrolling flies the rest.
 const CRUISE = 0.42;
 
 const routes = {
-  // The runway is the top edge of the credentials band: the SVG fills the area above the
-  // band and is pinned to its bottom (YMax), so y≈880 always sits just above the band.
-  // From there it climbs through the gap between text and portrait and exits over the photo.
+  // Pinned to the bottom of the SVG (YMax), so the runway sits just above the credentials band.
   wide: {
     viewBox: "0 0 1440 900",
     aspect: "xMidYMax slice",
     d: "M-60 880H420C640 880 790 850 850 700C895 590 870 420 900 320C930 210 1060 170 1200 160C1320 152 1400 140 1520 120",
   },
-  // Phones have no empty space beside the text, so the jet climbs up the left of the
-  // photo, banks along its top edge and climbs out past the clipped corner. It never
-  // descends. Box is the photo plus a 16px margin each side and 48px above.
+  // Phones: up the left of the photo, along its top and out past the clipped corner.
   narrow: {
     viewBox: "0 0 375 477",
     aspect: "xMidYMid meet",
@@ -41,9 +36,7 @@ export function Hero() {
       const mm = gsap.matchMedia();
       const q = gsap.utils.selector(root);
 
-      // A paused "jet along path" tween and a paused "draw the trail" tween,
-      // driven by one number so the trail always ends under the jet.
-      // Only the visible route is measured; a display:none SVG has no geometry.
+      // One progress value drives both the jet and its trail. Only the visible route is measured.
       const flight = (wide: boolean) => {
         const svg = q(`[data-route="${wide ? "wide" : "narrow"}"]`)[0];
         const path = svg.querySelector("[data-flight]") as SVGPathElement;
@@ -73,8 +66,7 @@ export function Hero() {
         };
       };
 
-      // GSAP only runs a conditions callback when at least one condition matches,
-      // so "all" keeps it running on phones with motion enabled.
+      // "all" keeps the callback running on phones (GSAP needs one matching condition).
       mm.add({ wide: "(min-width: 1024px)", reduced: MOTION_REDUCED, all: "all" }, (ctx) => {
         const { wide, reduced } = ctx.conditions as {
           wide: boolean;
@@ -89,7 +81,6 @@ export function Hero() {
         const state = { takeoff: 0, climb: 0 };
         const render = () => route.set(state.takeoff + state.climb * (1 - CRUISE));
         render();
-        // Takes off once the credential plates (its runway) have landed.
         gsap.to(state, {
           takeoff: CRUISE,
           duration: 2.6,
@@ -98,9 +89,7 @@ export function Hero() {
           onUpdate: render,
         });
 
-        // The jet finishes its flight before the page moves on. Desktop: the hero holds
-        // still while it flies out. Phones: the climb spans the portrait's trip from the
-        // lower part of the screen to near the top, so it completes while still in view.
+        // Desktop: the hero holds while the jet flies out. Phones: it completes while in view.
         gsap.to(state, {
           climb: 1,
           ease: "none",
@@ -122,14 +111,9 @@ export function Hero() {
         });
       });
 
-      // The intro, in order (seconds from load). The header arrives alongside, and the
-      // credential plates (Credentials.tsx) rise at 0.7 and count up as each one lands.
-      //   0.1  eyebrow          0.25 headline words      0.3  portrait wipes up
-      //   0.6  lead, by line    0.85 buttons             1.1  jet takes off
-      //   1.3  name underline (with the lead, below)        1.4  photo shadow
+      // Intro timing (seconds): eyebrow 0.1, headline 0.25, portrait 0.3, lead 0.6, buttons 0.85,
+      // jet 1.1, photo shadow 1.4. The credential plates rise at 0.7 (Credentials.tsx).
       mm.add(MOTION_OK, () => {
-        // Split text animates per line or word; autoSplit re-splits (and keeps the
-        // animation's progress) if the lines rewrap on resize.
         SplitText.create(q("[data-headline]"), {
           type: "lines,words",
           mask: "lines",
@@ -162,7 +146,6 @@ export function Hero() {
           )
           .from(q("[data-portrait] img"), { scale: 1.3, duration: 2.2 }, 0.2)
           .from(q("[data-actions] > *"), { y: 24, autoAlpha: 0, stagger: 0.1, duration: 1 }, 0.75)
-          // The shadow starts tucked behind the photo and slides out to its offset.
           .from(q("[data-shadow]"), { x: -20, y: 20, autoAlpha: 0, duration: 1.2 }, 1.3);
 
         gsap.fromTo(
@@ -181,17 +164,13 @@ export function Hero() {
         );
       });
 
-      // The lead rises line by line where its first line is set on its own (sm and up).
-      // On phones it wraps freely, and splitting it there breaks the wrapping around the
-      // inline name and bold phrases, so it rises as one block instead.
-      // No mask either way: it would clip the underline hanging below his name.
+      // Lead: line by line from sm up. Not on phones, where splitting breaks the wrapping, and
+      // never masked, which would clip the name's underline.
       mm.add(`(min-width: 640px) and ${MOTION_OK}`, () => {
         SplitText.create(q("[data-lead]"), {
           type: "lines",
           autoSplit: true,
-          // The underline under his name draws here too: splitting rebuilds the sentence's
-          // elements (and re-splitting when fonts load rebuilds them again), so it's looked up
-          // fresh on each split. SplitText carries the animation's progress across a re-split.
+          // Looked up per split: re-splitting rebuilds the sentence's elements.
           onSplit: (self) =>
             gsap
               .timeline({ delay: 0.6 })
@@ -204,8 +183,7 @@ export function Hero() {
               ),
         });
       });
-      // Without motion the headline isn't split for the intro, so split it just to align
-      // each line optically.
+      // Without motion, still split the headline to align each line optically.
       mm.add(MOTION_REDUCED, () => {
         SplitText.create(q("[data-headline]"), {
           type: "lines",
@@ -271,7 +249,6 @@ export function Hero() {
                       part.text
                     ),
                   )}
-                  {/* On phones the lines run together, so keep a space between them. */}
                   {i === 0 && " "}
                 </span>
               ))}
@@ -291,17 +268,15 @@ export function Hero() {
               route="narrow"
               className="absolute -inset-x-4 -top-12 h-[calc(100%+3rem)] w-[calc(100%+2rem)] overflow-visible lg:hidden"
             />
-            {/* Hard offset shadow: the photo's own shape in ink, nudged up and to the right. */}
             <span
               data-shadow
               aria-hidden
               className="absolute inset-0 translate-x-3 -translate-y-3 bg-ink [clip-path:polygon(0_0,calc(100%-32px)_0,100%_32px,100%_100%,0_100%)] lg:translate-x-5 lg:-translate-y-5"
             />
-            {/* Clipped top-right corner, the same notch as the buttons. The reveal animates
-                its own clip on the inner layer, so it never overrides the notch. */}
+            {/* The reveal animates its own clip on the inner layer, so it never overrides the notch. */}
             <div className="relative aspect-4/5 [clip-path:polygon(0_0,calc(100%-32px)_0,100%_32px,100%_100%,0_100%)] lg:aspect-3/4">
               <div data-portrait className="absolute inset-0 overflow-clip bg-marigold-deep">
-                {/* Taller than the frame so the scroll parallax never exposes an edge. */}
+                {/* Taller than the frame, so the parallax never shows an edge. */}
                 <div data-parallax className="absolute inset-x-0 top-[-8%] h-[116%]">
                   <Image
                     src={portrait}
@@ -310,7 +285,6 @@ export function Hero() {
                     priority
                     placeholder="blur"
                     sizes="(min-width: 1024px) 30vw, (min-width: 640px) 28rem, 90vw"
-                    // Zoomed in around his face (about 61% across, 42% down) so he fills the frame.
                     className="origin-[61%_42%] scale-[1.3] object-cover object-[61%_42%]"
                   />
                 </div>
@@ -325,8 +299,6 @@ export function Hero() {
   );
 }
 
-// The name set in the serif italic, a size up from the sentence around it, with a
-// hand-drawn underline that draws itself in during the intro (data-signature).
 function Signature({ children }: { children: string }) {
   return (
     <span className="relative inline-block whitespace-nowrap text-ink">

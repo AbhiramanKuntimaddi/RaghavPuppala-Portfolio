@@ -3,57 +3,36 @@
 import { gsap, MOTION_OK, ScrollTrigger, useGSAP } from "@/lib/gsap";
 import { stretchKeyword } from "@/lib/optical";
 
-// Section entries and exits: the "corner cut". Each section's content (never its
-// background) is revealed and removed along a 45° diagonal that runs from the trimmed
-// top-right corner, and the letters of its headlines and eyebrows show noise in a band
-// at the moving edge, like a readout catching or losing signal.
-//
-//   Entry  as a section rises into view, its content opens from the top-right corner
-//          across its first screenful, letters resolving out of noise behind the edge.
-//   Exit   as it leaves, a cut grows from the same corner across its last screenful,
-//          letters breaking into noise just ahead of the edge.
-//
-// Everything follows scroll position, so scrolling back plays it in reverse, and the
-// noise only changes while you move. Units: each section in <main> (a pinned section is
-// timed by its pin spacer, so its exit waits for the hold) and each stacked venture sheet
-// (which exits as the next sheet slides over it). The hero is already in view on load, so
-// it only exits; Contact only enters, then lifts off the footer (which has its own entry
-// and exit, see Footer).
-//
-// The noise never moves the layout: each noise letter is picked to match the width of the
-// letter it stands in for, and a heading holds its height while any of it is scrambled.
-// Each frame measures everything first and writes afterwards, so the browser lays the page
-// out once per frame rather than once per section.
+// Section entries and exits: content (never the background) is revealed and cut along a 45°
+// line from the top-right corner, with headline letters scrambling at the edge. Scroll-driven.
 
 const NOISE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 const TEXT = "h1, h2, h3, blockquote, [data-scramble], [data-eyebrow]";
-const ENTER_BY = 0.7; // the entry has opened the whole first screenful once its top is 70% up
-const EXIT_BY = 0.75; // the exit has cut the whole last screenful once three quarters has left
+const ENTER_BY = 0.7; // entry finishes once the top is 70% up the screen
+const EXIT_BY = 0.75; // exit finishes once 75% has left
 const EMPTY = "polygon(0 0,0 0,0 0)";
 
 type Point = [number, number];
-// A headline letter, positioned in its target's own (unscaled) coordinates, so it stays
-// right while a sheet's content shrinks back under the next one.
+// Positioned in its target's unscaled coordinates, so it holds while a sheet shrinks back.
 type Glyph = { node: Text; index: number; target: number; lx: number; ly: number; noise: string[] };
 type Unit = {
-  el: HTMLElement; // coordinates and size
-  box: HTMLElement; // timing: the pin spacer of a pinned section, else the element itself
-  next?: HTMLElement; // the stacked sheet that slides over this one
-  targets: HTMLElement[]; // what gets cut: the content, not the background
+  el: HTMLElement;
+  box: HTMLElement; // the pin spacer of a pinned section, else el
+  next?: HTMLElement; // the sheet that slides over this one
+  targets: HTMLElement[]; // content only, not the background
   exitBy: number;
   sticky: boolean;
   glyphs: Glyph[] | null;
   originals: Map<Text, string>;
-  blocks: { el: HTMLElement; height: number }[]; // the scrambled headings, held at this height
+  blocks: { el: HTMLElement; height: number }[]; // headings held at their height while scrambled
   clipped: boolean;
   noisy: boolean;
 };
-// One frame's decisions for a unit, made while reading and applied while writing.
 type Plan = { u: Unit; clips: string[] | null; text: Map<Text, string> | null };
 
 const clamp = (v: number) => Math.min(1, Math.max(0, v));
 
-// Clip a convex polygon to the half-plane where f(point) >= 0 (Sutherland–Hodgman).
+// Sutherland–Hodgman: clip a convex polygon to where f(point) >= 0.
 function clipTo(poly: Point[], f: (p: Point) => number): Point[] {
   const out: Point[] = [];
   for (let i = 0; i < poly.length; i++) {
@@ -70,8 +49,7 @@ function clipTo(poly: Point[], f: (p: Point) => number): Point[] {
   return out;
 }
 
-// Noise letters close in width to a given letter in a given font, so swapping one in
-// doesn't push the rest of the line along (or onto a new line).
+// Noise letters of similar width, so scrambling never reflows a line.
 const noiseCache = new Map<string, string[]>();
 let ctx: CanvasRenderingContext2D | null = null;
 function noiseLike(el: Element, width: number): string[] {
@@ -126,11 +104,10 @@ export function Cuts() {
           return;
         }
         const box = section.parentElement?.classList.contains("pin-spacer") ? section.parentElement : section;
-        // The last section (Contact) enters with the cut but leaves by lifting off the footer.
+        // Contact only enters; it leaves by lifting off the footer.
         add(section, box, children(section), i === sections.length - 1 ? { exitBy: Infinity } : {});
       });
 
-      // Writes: put a unit's text back and let its headings size themselves again.
       const restore = (u: Unit) => {
         for (const [node, text] of u.originals) if (node.data !== text) node.data = text;
         for (const { el } of u.blocks) el.style.height = "";
@@ -142,8 +119,7 @@ export function Cuts() {
         if (u.noisy) restore(u);
       };
 
-      // Each headline letter, unscrambled, in its target's own coordinates, with the noise
-      // letters that fit it. Once per layout, and again if a heading re-split its text.
+      // Once per layout, and again if a heading re-split its text.
       const measure = (u: Unit) => {
         if (u.noisy) restore(u);
         u.originals.clear();
@@ -184,22 +160,18 @@ export function Cuts() {
         const vh = window.innerHeight;
         const plans: Plan[] = [];
 
-        // Read: where every unit is, and what it should look like this frame.
+        // Read everything first, then write, so layout runs once per frame.
         for (const u of units) {
           const r = u.el.getBoundingClientRect();
           const b = u.box === u.el ? r : u.box.getBoundingClientRect();
-          // Far off screen it can't be seen; it's brought up to date as it comes near.
           if (b.bottom < -vh || b.top > vh * 2) continue;
           const w = r.width;
           const H = u.el.offsetHeight;
           const screen = Math.min(vh, H);
 
-          // Entry over the first screenful, as the unit's top rises from the bottom of the
-          // screen. A short unit finishes opening once most of it is in view.
           const enter = clamp((vh - b.top) / Math.min(vh * ENTER_BY, H * 0.9));
           const cIn = enter >= 1 ? Infinity : enter * (w + screen);
-          // Exit over the last screenful: as its bottom rises off the top, or for a stacked
-          // sheet held in place, as the next sheet slides up over it.
+          // A stacked sheet exits as the next one slides over it.
           const leave =
             u.sticky && u.next
               ? clamp((vh - u.next.getBoundingClientRect().top) / (vh * u.exitBy))
@@ -212,8 +184,6 @@ export function Cuts() {
             continue;
           }
 
-          // What's left: inside the opened corner (entry) and outside the cut corner (exit),
-          // in the unit's screen coordinates, then mapped into each target's own.
           let poly: Point[] = [
             [0, 0],
             [w, 0],
@@ -230,7 +200,6 @@ export function Cuts() {
             poly.length ? `polygon(${poly.map(([x, y]) => `${(x - dx) / s}px ${(y - dy) / s}px`).join(",")})` : EMPTY,
           );
 
-          // Noise in a band at each moving edge: behind the entry's edge, ahead of the exit's.
           let text: Map<Text, string> | null = new Map();
           if (b.bottom > 0 && b.top < vh) {
             if (!u.glyphs || u.glyphs.some((g) => !g.node.isConnected)) measure(u);
@@ -255,7 +224,6 @@ export function Cuts() {
           plans.push({ u, clips, text });
         }
 
-        // Write: cuts and noise for every unit, after all the reading is done.
         for (const { u, clips, text } of plans) {
           if (!clips) {
             reset(u);
@@ -267,7 +235,6 @@ export function Cuts() {
             if (u.noisy) restore(u);
             continue;
           }
-          // Hold each heading at its measured height while any of it is scrambled.
           if (!u.noisy) for (const { el, height } of u.blocks) el.style.height = `${height}px`;
           for (const [node, original] of u.originals) {
             const want = text.get(node) ?? original;
@@ -281,9 +248,7 @@ export function Cuts() {
       const schedule = () => {
         if (!frame) frame = requestAnimationFrame(() => ((frame = 0), render()));
       };
-      // Layout changed (resize, fonts, pins recalculated): re-read which sheets are stacked,
-      // start each unit from whole, re-measure its letters, and draw the current state of
-      // every unit (including those far off screen, so none is caught unprepared).
+      // Layout changed: reset every unit, re-measure, redraw (far-off ones too).
       const relayout = () => {
         for (const u of units) {
           reset(u);
@@ -295,7 +260,6 @@ export function Cuts() {
         for (const u of units) {
           const b = u.box.getBoundingClientRect();
           if (!(b.bottom < -vh || b.top > vh * 2)) continue;
-          // Not yet reached: hidden until its entry. Already passed: whole (it's out of view).
           if (b.top > 0) {
             for (const t of u.targets) t.style.clipPath = EMPTY;
             u.clipped = true;

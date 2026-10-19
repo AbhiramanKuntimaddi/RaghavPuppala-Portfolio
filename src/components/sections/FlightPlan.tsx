@@ -7,10 +7,8 @@ import { Button } from "@/components/ui/Button";
 import { JetIcon } from "@/components/ui/Jet";
 import { Headline } from "@/components/ui/Headline";
 
-// The hero's jet (an Air Force emblem, not a claim he flew) crossing the three steps.
-// From md up the section pins and the jet crosses while the page holds still,
-// so each step gets its own stretch of scroll. On phones the jet tracks the
-// scroll 1:1, sitting on a fixed line just below the middle of the screen.
+// The jet (an Air Force emblem, not a claim he flew) crosses the three steps: pinned from md
+// up, tracking the scroll on phones.
 export function FlightPlan() {
   const root = useRef<HTMLElement>(null);
   const route = useRef<HTMLDivElement>(null);
@@ -47,7 +45,6 @@ export function FlightPlan() {
             ? {
                 trigger: root.current,
                 pin: true,
-                // The section is a full screen tall from md up, so it pins flush with the top.
                 start: "top top",
                 end: () => `+=${window.innerHeight * 1.6}`,
                 scrub: 1,
@@ -67,7 +64,6 @@ export function FlightPlan() {
           { [scale]: 1, duration: 1 },
           0,
         );
-        // A short hold so the last step is fully lit before the section moves on.
         if (wide) tl.to({}, { duration: 0.2 });
       });
     },
@@ -96,7 +92,6 @@ export function FlightPlan() {
             <p className="max-w-[34ch] text-lg text-paper/70">
               Three steps, in order, with no surprises. You always know where we are and what comes next.
             </p>
-            {/* Step one, the brief, is the free session. */}
             <Button href={site.contact.booking.href} external variant="marigold">
               {site.contact.booking.label}
             </Button>
@@ -104,12 +99,10 @@ export function FlightPlan() {
         </div>
 
         <div ref={route} className="relative mt-16 md:mt-24">
-          {/* The route: horizontal from md up, vertical below. */}
           <span
             aria-hidden
             className="absolute top-0 bottom-0 left-2.75 border-l border-dashed border-paper/35 md:inset-x-0 md:top-2.75 md:bottom-auto md:border-t md:border-l-0"
           />
-          {/* Solid trail that fills in behind the jet. */}
           <span
             ref={trail}
             aria-hidden

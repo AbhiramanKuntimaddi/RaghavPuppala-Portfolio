@@ -2,10 +2,8 @@
 
 import { useEffect } from "react";
 
-// Sets the tab title from a page that can't export metadata (the 404 page), and puts the
-// previous title back when it unmounts. Next writes the layout's title into the head as the
-// page hydrates, which can land after this effect, so the title is re-applied whenever the
-// head changes while the page is open.
+// Title for pages that can't export metadata. Re-applied on head changes, since Next can
+// write the layout's title after this effect.
 export function DocumentTitle({ title }: { title: string }) {
   useEffect(() => {
     const previous = document.title;

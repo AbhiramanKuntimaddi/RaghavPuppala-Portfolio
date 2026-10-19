@@ -2,12 +2,7 @@
 
 import { gsap, MOTION_OK, useGSAP } from "@/lib/gsap";
 
-// Small arrivals shared by every section, each played once as it first scrolls into view
-// (alongside the sections' corner-cut entry, components/layout/Cuts):
-//   .notch         a section's trimmed top-right corner folds in from the corner
-//   data-lines     a ruled list: each [data-lined] row's rule ([data-line]) draws left to
-//                  right, one after another
-// Everything is rendered in full first, so without motion (or scripts) nothing is lost.
+// Once-only arrivals: .notch corners fold in, and data-lines rules ([data-line]) draw in turn.
 export function Flourishes() {
   useGSAP(() => {
     gsap.matchMedia().add(MOTION_OK, () => {
@@ -19,7 +14,6 @@ export function Flourishes() {
         });
       });
 
-      // The corner's size is a CSS variable (--notch-in) on the section, read by its ::before.
       gsap.utils.toArray<HTMLElement>(".notch").forEach((el) => {
         gsap.fromTo(
           el,

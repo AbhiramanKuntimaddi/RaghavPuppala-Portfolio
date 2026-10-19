@@ -11,28 +11,19 @@ import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger, SplitText, DrawSVGPlugin, MotionPathPlugin, ScrambleTextPlugin, CustomEase, useGSAP);
 
-// Line-drawing ease, the same curve as cubic-bezier(.7,0,.3,1): a soft start and a soft
-// landing, so strokes visibly travel instead of popping in.
+// Same curve as cubic-bezier(.7,0,.3,1), for line drawing.
 CustomEase.create("draw", "M0,0 C0.7,0 0.3,1 1,1");
 
-// One easing vocabulary for the whole site: exponential ease-outs only.
 gsap.defaults({ ease: "expo.out", duration: 1.1 });
 
-// On phones and tablets the browser's toolbar collapses as you scroll, and each step is
-// reported as a resize. Left alone, ScrollTrigger re-measures every pin mid-scroll, which
-// yanks a held section out from under the reader. This ignores resizes on touch devices
-// that only change the height (rotating changes the width too, so that still refreshes).
-// It's why the pinned sections are sized in lvh rather than svh: lvh is the height with
-// the toolbar hidden and never changes, so a pin measured once still reaches the bottom
-// of the screen after the toolbar collapses, with no strip of the next section beneath.
+// Ignore toolbar-only resizes on touch devices, so pins aren't re-measured mid-scroll. (Why
+// pinned sections use lvh: it's fixed, so they still reach the bottom when the toolbar hides.)
 ScrollTrigger.config({ ignoreMobileResize: true });
 
-// A reload starts from the top. Left to itself the browser puts the old scroll position back
-// before the pinned sections have added their scroll length, so it lands well short of where
-// the reader was, with every scroll animation set for the wrong place.
+// Reloads start at the top: restoring the old position before pins exist lands in the wrong place.
 if (typeof window !== "undefined") ScrollTrigger.clearScrollMemory("manual");
 
-// In development, the Design Lab's motion speed control slows GSAP too, through window.gsap.
+// Lets the Design Lab's motion speed control slow GSAP in dev.
 if (process.env.NODE_ENV === "development" && typeof window !== "undefined")
   (window as Window & { gsap?: typeof gsap }).gsap = gsap;
 

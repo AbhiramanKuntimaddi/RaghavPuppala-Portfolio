@@ -2,9 +2,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import type { NextConfig } from "next";
 
-// The shared Design Lab (dev only) is synced into .design-lab/lab from ../DesignLab by
-// `npm run lab:sync` and predev. When it's absent (Vercel, a fresh clone) "design-lab"
-// resolves to the committed no-op stub instead, so nothing Lab-related ever ships.
+// Design Lab (dev only): falls back to a no-op stub when .design-lab/lab isn't synced (Vercel).
 const lab = "./.design-lab/lab/index.ts";
 
 const nextConfig: NextConfig = {

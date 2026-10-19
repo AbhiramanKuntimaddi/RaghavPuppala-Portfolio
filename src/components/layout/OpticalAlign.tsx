@@ -3,10 +3,7 @@
 import { useEffect } from "react";
 import { alignOptically, hangPunctuation } from "@/lib/optical";
 
-// Optical alignment for large type that isn't split into lines (split headings align
-// their own lines): data-optical pulls a heading back by its first glyph's side bearing,
-// and data-hang (on a span holding just an opening quote mark) hangs it into the margin. Runs again once the web
-// fonts have loaded, since a fallback font has different bearings.
+// data-optical and data-hang for type that isn't split into lines. Re-runs once fonts load.
 export function OpticalAlign() {
   useEffect(() => {
     const run = () => {

@@ -15,7 +15,7 @@ export default function Home() {
     <>
       <SkipLink />
       <Header />
-      {/* Above the footer, which sits underneath; sticky so it can hold once the footer is uncovered. */}
+      {/* Sticky, so it can hold once the footer is uncovered. */}
       <main className="sticky z-10">
         <Hero />
         <Practice />

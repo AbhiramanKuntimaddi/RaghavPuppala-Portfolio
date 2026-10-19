@@ -22,9 +22,7 @@ const newsreader = Newsreader({
   style: ["italic"],
 });
 
-// The shared Design Lab (../DesignLab), dev only: palette and font previews, Inspect, Audit
-// and the layout overlays. The site's colours come from its palette (globals.css), so the
-// Lab needs no mapping, only this site's names for things.
+// The shared Design Lab (dev only).
 const labConfig: DesignLabConfig = {
   fonts: ["sans", "display"],
   labels: { palette: "Colours", sans: "Text", display: "Display type" },
@@ -66,8 +64,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en-IN" className={`${archivo.variable} ${newsreader.variable} antialiased`} suppressHydrationWarning>
       <head>
-        {/* Before first paint: "motion" hides intro elements so they can animate in without
-            a flash, and "returning" skips the preloader after its first showing this session. */}
+        {/* Before first paint: "motion" hides intro elements; "returning" skips the preloader. */}
         <script
           dangerouslySetInnerHTML={{
             __html: `if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("motion");try{if(sessionStorage.getItem("${PRELOADED_KEY}"))document.documentElement.classList.add("returning")}catch(e){}`,

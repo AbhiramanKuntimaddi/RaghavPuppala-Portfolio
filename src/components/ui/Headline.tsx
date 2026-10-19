@@ -11,8 +11,6 @@ type Props = {
   id?: string;
 };
 
-// A section headline, split into lines so each one can be optically aligned (see
-// lib/optical). Its entrance is the section's corner-cut entry (components/layout/Cuts).
 export function Headline({ as: Tag = "h2", className, children, id }: Props) {
   const ref = useRef<HTMLElement>(null);
 

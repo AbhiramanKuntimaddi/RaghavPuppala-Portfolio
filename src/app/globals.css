@@ -1,30 +1,20 @@
 @import "tailwindcss";
 @import "./tokens.css";
 
-/*
-  Colours and fonts follow the shared Design Lab (../DesignLab, RULES.md): tokens.css
-  derives the colour roles from the four palette colours below, and the Lab's palette and
-  font previews (dev only) work by changing them.
-
-  Palette: committed marigold on warm paper, with ink tinted toward the same hue. The site's
-  own colour names (paper, ink, marigold…) are taken from it in @theme, so components keep
-  their names and still follow a preview. Each venture keeps a colour lifted from its own
-  identity, outside the palette.
-*/
+/* Follows the Design Lab's tokens (../DesignLab, RULES.md): the site's colours come from the
+   palette below, so Lab previews recolour everything. Venture colours sit outside it. */
 :root {
   --palette-background: oklch(0.974 0.009 85);
   --palette-foreground: oklch(0.205 0.018 55);
   --palette-muted: oklch(0.43 0.02 60);
   --palette-accent: oklch(0.83 0.155 78);
 
-  /* Hairlines at the site's own strength (the role's default is a touch heavier). */
   --tune-base-line: color-mix(in oklab, var(--palette-foreground) 14%, transparent);
 
-  /* Archivo for everything, set condensed and heavy for display type (font-display). */
   --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
 
-  /* One column with 16px margins on phones, 32px from sm, a 12-column grid from lg. */
+  /* 1 column, 16px margins; 32px from sm; 12 columns from lg. */
   --grid-columns: 1;
   --grid-gutter: 2rem;
   --grid-margin: 1rem;
@@ -45,12 +35,10 @@
   --color-ink: var(--palette-foreground);
   --color-ink-soft: var(--palette-muted);
   --color-marigold: var(--palette-accent);
-  /* Shades of the palette, derived from it below where the browser can. */
   --color-paper-2: oklch(0.942 0.014 82);
   --color-marigold-deep: oklch(0.72 0.16 65);
 
-  /* AdsXcell's colour. Never name a colour (or any class) "ads": ad blockers hide elements
-     with classes like .bg-ads on every site, and the AdsXcell sheet vanished with it. */
+  /* Never name a colour or class "ads": ad blockers hide .bg-ads on every site. */
   --color-broadcast: oklch(0.7 0.155 38);
   --color-interiors: oklch(0.42 0.055 350);
   --color-interiors-soft: oklch(0.88 0.03 350);
@@ -64,8 +52,7 @@
   --text-headline: clamp(2.5rem, 6.4vw, 5.75rem);
 }
 
-/* The second paper and the deeper marigold, as offsets from the palette, so a Lab preview
-   carries them along. Where relative colours aren't supported, the fixed values above stand. */
+/* Derived from the palette where relative colours are supported. */
 @supports (color: oklch(from red l c h)) {
   :root {
     --color-paper-2: oklch(from var(--palette-background) calc(l - 0.032) calc(c + 0.005) calc(h - 3));
@@ -94,14 +81,13 @@
     color: var(--color-ink);
   }
 
-  /* A marigold highlight vanishes on warm surfaces; select in ink there instead. */
+  /* Marigold selection vanishes on warm surfaces. */
   :is(.bg-marigold, .bg-broadcast) ::selection,
   :is(.bg-marigold, .bg-broadcast)::selection {
     background: var(--color-ink);
     color: var(--color-paper);
   }
 
-  /* Ink buttons sitting on marigold keep the marigold highlight. */
   .bg-ink ::selection,
   .bg-ink::selection {
     background: var(--color-marigold);
@@ -113,7 +99,6 @@
     outline-offset: 4px;
     border-radius: 2px;
   }
-  /* Focus moved to a section by script (the skip link) needs no outline around it. */
   [tabindex="-1"]:focus {
     outline: none;
   }
@@ -135,8 +120,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Short landscape screens (tablets on their side, 13" laptops): full-height sections
-   tighten up so their content still fits on one screen. */
+/* Short landscape screens: full-height sections tighten up to fit. */
 @custom-variant short (@media (width >= 64rem) and (height <= 51.25rem));
 
 @media (width >= 64rem) {
@@ -146,21 +130,15 @@
   }
 }
 
-/* Each section sits like a card on the one above, and its top edge, trimmed corner included,
-   casts a soft shadow onto it: darkest right against the edge, gone a short way up. Its
-   strength depends on what it falls on, so it reads the same everywhere: soft on paper,
-   stronger on the venture colours, near-black on ink (notch-over-ink). */
+/* Each section casts a soft shadow onto the one above, its strength set by the surface
+   it falls on (soft on paper, stronger on colour, near-black on ink). */
 :root {
   --edge-shade-soft: oklch(0.2 0.02 55 / 0.16);
   --edge-shade-mid: oklch(0.15 0.02 55 / 0.34);
   --edge-shade: var(--edge-shade-soft);
 }
 
-/* The shadow fades out on an eased curve rather than a straight line: strongest at the edge,
-   then thinning off gradually with no visible line where it ends, the way a real shadow
-   blurs out. Defined on each element that draws it, so it uses that element's --edge-shade:
-   --notch-edge-shade runs up from a straight edge, --notch-corner-shade out from the 45° one
-   (its box is square, so the gradient's 50% line is the edge itself). */
+/* Eased falloff, so there's no hard line where the shadow ends. */
 :where(.notch, .notch-corner-shadow) {
   --shade-80: color-mix(in oklab, var(--edge-shade) 80%, transparent);
   --shade-58: color-mix(in oklab, var(--edge-shade) 58%, transparent);
@@ -193,15 +171,11 @@
   );
 }
 
-/* The site's clipped corner on a whole section: the top-right corner is trimmed off and
-   the section above shows through it. Set the colour above with --notch.
-
-   ::before is the corner: the colour above, with the shadow along the 45° edge. ::after is
-   the shadow along the straight top edge. The corner's box reaches up by the shadow's depth
-   (--notch-lift) so the two shadows meet in a mitre, the way one shadow turns a corner. */
+/* The trimmed top-right corner. ::before paints the colour above (--notch) with the diagonal
+   shadow; ::after shadows the straight top edge. They meet in a mitre (--notch-lift). */
 @utility notch {
   position: relative;
-  /* Whole pixels, so the corner's colour starts on a pixel edge with no seam above it. */
+  /* Whole pixels, so there's no seam above the corner. */
   --notch-lift: round(calc(var(--notch-size) * 0.28), 1px);
   &::before {
     content: "";
@@ -215,8 +189,7 @@
       var(--notch-corner-shade), linear-gradient(transparent var(--notch-lift), var(--notch, var(--color-paper)) 0);
     clip-path: polygon(var(--notch-lift) var(--notch-lift), calc(var(--notch-lift) * 1.4142) 0, 100% 0, 100% 100%);
     pointer-events: none;
-    /* Folds in from the corner as the section arrives (Flourishes animates --notch-in), and
-       folds shut again when a venture sheet is covered by the next (Ventures, --notch-shut). */
+    /* --notch-in folds it in (Flourishes); --notch-shut folds it shut (Ventures). */
     transform: scale(calc(var(--notch-in, 1) * (1 - var(--notch-shut, 0))));
     transform-origin: 100% var(--notch-lift);
   }
@@ -234,8 +207,7 @@
   }
 }
 
-/* The corner's shadow on its own, the same shape as in notch's ::before, for where the
-   corner is a real cut and the shadow is drawn on what's beneath it (Ventures). */
+/* The corner's shadow alone, for real cuts (Ventures). */
 @utility notch-corner-shadow {
   width: calc(var(--notch-size) + var(--notch-lift));
   height: calc(var(--notch-size) + var(--notch-lift));
@@ -243,13 +215,12 @@
   clip-path: polygon(var(--notch-lift) var(--notch-lift), calc(var(--notch-lift) * 1.4142) 0, 100% 0, 100% 100%);
 }
 
-/* A section under an ink one: the corner shows ink, and the shadow goes near-black. */
 @utility notch-over-ink {
   --notch: var(--color-ink);
   --edge-shade: oklch(0.08 0.01 55 / 0.6);
 }
 
-/* Intro elements wait for GSAP; the fallback reveals them if scripts never run. */
+/* Revealed by GSAP; the fallback shows them if scripts never run. */
 html.motion [data-reveal] {
   visibility: hidden;
   animation: reveal-fallback 0s linear 3s forwards;
@@ -260,8 +231,7 @@ html.motion [data-reveal] {
   }
 }
 
-/* Preloader: never shown with reduced motion or after its first showing this session, and
-   if scripts never run it gets out of the way after a few seconds. */
+/* Never with reduced motion or after the first showing; removed if scripts never run. */
 html:not(.motion) [data-preloader],
 html.returning [data-preloader] {
   display: none;
@@ -275,7 +245,6 @@ html.returning [data-preloader] {
   }
 }
 
-/* SplitText masks: lines slide up from behind their own edge. */
 .split-line {
   overflow: clip;
   padding-bottom: 0.06em;
@@ -294,7 +263,6 @@ html.lenis body {
   overscroll-behavior: contain;
 }
 
-/* Range input, styled once for the calculator. */
 .range {
   appearance: none;
   width: 100%;

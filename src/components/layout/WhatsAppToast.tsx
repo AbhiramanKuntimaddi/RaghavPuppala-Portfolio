@@ -6,11 +6,8 @@ import { gsap } from "@/lib/gsap";
 import { QR_OPENED, QR_SEEN } from "@/lib/qr";
 import { WhatsAppQR } from "@/components/ui/WhatsAppQR";
 
-// A one-time reminder, desktop only: once a visitor reaches what clients say (most of the
-// way through the page), a small card slides in at the bottom-left with the WhatsApp QR.
-// It shows at most once a visit, never on phones (the buttons open WhatsApp directly
-// there), and not at all for someone who has already opened a QR card. It leaves when
-// they close it, or by itself once Contact comes into view, which has the QR anyway.
+// Desktop-only WhatsApp QR reminder, once per visit, from the testimonials on. Skipped if a QR
+// card was opened; leaves when closed or when Contact (which has the QR) comes into view.
 
 const DESKTOP = "(min-width: 64rem) and (hover: hover) and (pointer: fine)";
 
@@ -35,7 +32,7 @@ export function WhatsAppToast() {
       ([e]) => {
         if (!e.isIntersecting) return;
         show.disconnect();
-        // Already scrolled on to Contact (a nav jump), or seen the QR on the way: skip it.
+        // Skip after a nav jump past it, or if the QR was already seen.
         if (seen() || contact.getBoundingClientRect().top < window.innerHeight) return;
         try {
           sessionStorage.setItem(QR_SEEN, "1");
@@ -56,7 +53,6 @@ export function WhatsAppToast() {
     };
   }, []);
 
-  // In from the left; back out the same way.
   useEffect(() => {
     const el = root.current;
     if (!el) return;

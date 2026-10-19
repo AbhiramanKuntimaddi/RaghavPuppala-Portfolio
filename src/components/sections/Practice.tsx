@@ -6,15 +6,12 @@ import { gsap, MOTION_OK, useGSAP } from "@/lib/gsap";
 import { Button } from "@/components/ui/Button";
 import { Headline } from "@/components/ui/Headline";
 
-// Desktop: the section holds still while the three services come in one after another
-// (rule draws across, then title, copy and detail rise), and only lets go once the last
-// one has fully landed. Phones: each service simply reveals as it scrolls into view.
+// Desktop: holds while the three services land in turn. Phones: each reveals on entry.
 export function Practice() {
   const root = useRef<HTMLElement>(null);
 
   useGSAP(
     () => {
-      // "all" keeps the callback running when neither named condition matches.
       gsap.matchMedia().add({ wide: "(min-width: 1024px)", motion: MOTION_OK, all: "all" }, (ctx) => {
         const { wide, motion } = ctx.conditions as {
           wide: boolean;
@@ -60,7 +57,6 @@ export function Practice() {
             i + 0.2,
           );
         });
-        // A short hold so the last service sits fully on screen before the page moves on.
         tl.to({}, { duration: 0.6 });
       });
     },
@@ -89,27 +85,31 @@ export function Practice() {
             Most families buy a policy here and a fund there, and never see how the pieces fit. I start with your goals,
             then build the investments, cover and retirement plan around them.
           </p>
-          {/* His appointments with the insurers, as a ruled list whose rules draw in. */}
           <div data-lines className="mt-8 max-w-md short:mt-5">
             <div data-lined className="relative pb-2">
               <span data-line aria-hidden className="absolute inset-x-0 bottom-0 h-px origin-left bg-ink" />
-              <p className="text-xs font-semibold tracking-wide text-ink-soft uppercase">Appointed with</p>
+              <p className="text-xs font-semibold tracking-wide text-ink-soft uppercase">Your free session covers</p>
             </div>
-            {site.affiliations.map((a) => (
+            {site.session.covers.map((c) => (
               <div
-                key={a.org}
+                key={c.title}
                 data-lined
                 className="relative flex items-baseline justify-between gap-4 py-2.5 short:py-1.5"
               >
                 <span data-line aria-hidden className="absolute inset-x-0 bottom-0 h-px origin-left bg-line" />
-                <span className="font-display text-lg uppercase">{a.org}</span>
-                <span className="text-right text-sm text-ink-soft">{a.role}</span>
+                <span className="font-display text-lg uppercase">{c.title}</span>
+                <span className="text-right text-sm text-ink-soft">{c.detail}</span>
               </div>
             ))}
           </div>
-          <Button href={site.contact.demat} external variant="ink-on-paper" className="mt-8 short:mt-6">
-            Open a free Demat account
-          </Button>
+          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 short:mt-6">
+            <Button href={site.contact.demat} external variant="ink-on-paper">
+              Open a free Demat account
+            </Button>
+            <Button href={site.contact.booking.href} external variant="outline-on-paper">
+              {site.contact.booking.label}
+            </Button>
+          </div>
         </div>
 
         <ul className="lg:col-span-6 lg:col-start-7">

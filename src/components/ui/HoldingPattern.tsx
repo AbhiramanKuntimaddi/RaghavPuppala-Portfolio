@@ -4,9 +4,7 @@ import { useRef } from "react";
 import { gsap, MOTION_OK, MOTION_REDUCED, useGSAP } from "@/lib/gsap";
 import { JET_PATH } from "./Jet";
 
-// The jet flying a holding pattern, the racetrack loop flown while waiting for clearance
-// to land: a dashed route like the hero's, with the jet circling it on a slow loop. With
-// reduced motion it's parked on the route.
+// The jet circling a holding pattern; parked with reduced motion.
 export function HoldingPattern({ className = "" }: { className?: string }) {
   const root = useRef<SVGSVGElement>(null);
 

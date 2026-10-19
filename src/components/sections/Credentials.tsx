@@ -4,12 +4,7 @@ import { useRef } from "react";
 import { site } from "@/content/site";
 import { gsap, MOTION_OK, ScrollTrigger, useGSAP } from "@/lib/gsap";
 
-// A row of ink plates along the bottom of the hero, each with the site's trimmed corner:
-// cream figures, marigold labels.
-// Their top edge doubles as the jet's runway.
-// The plates rise one after another; as each lands its number ticks up from zero, or its
-// regulator name decodes like an instrument readout. The server renders the final values,
-// so nothing depends on the animation running.
+// Their top edge is the jet's runway. Values are server-rendered; the count-up is extra.
 export function Credentials() {
   const root = useRef<HTMLUListElement>(null);
 
@@ -62,8 +57,7 @@ export function Credentials() {
           tl.from(item.querySelector("[data-label]"), { y: 12, autoAlpha: 0, duration: 1 }, at + 0.15);
         });
 
-        // In view on load (desktop): part of the hero intro, 0.7s in. Otherwise (phones,
-        // below the fold): when they're scrolled to.
+        // Desktop: part of the hero intro. Phones: on scroll.
         if (ScrollTrigger.isInViewport(root.current!, 0.1)) tl.delay(0.7).play();
         else
           ScrollTrigger.create({
@@ -89,7 +83,6 @@ export function Credentials() {
           <li
             key={c.label}
             data-cred
-            // Phones: two per row, and an odd last plate spans the full width.
             className={`bg-ink px-5 py-5 text-paper [clip-path:polygon(0_0,calc(100%-14px)_0,100%_14px,100%_100%,0_100%)] sm:px-6 sm:py-6 short:py-4 lg:[clip-path:polygon(0_0,calc(100%-20px)_0,100%_20px,100%_100%,0_100%)] ${
               i === all.length - 1 && i % 2 === 0 ? "col-span-2 lg:col-span-1" : ""
             }`}

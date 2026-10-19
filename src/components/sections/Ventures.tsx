@@ -8,8 +8,7 @@ import { glideTo } from "@/lib/navigate";
 import { Button } from "@/components/ui/Button";
 import { Headline } from "@/components/ui/Headline";
 
-// above: the colour showing through the trimmed corner, and how strong the shadow cast on
-// it is. --edge-shade-own: the shadow cast on this sheet by the one that covers it.
+// above: the corner's colour and shadow strength. --edge-shade-own: the shadow cast on this sheet.
 const themes = {
   broadcast: {
     panel: "bg-broadcast text-ink [--edge-shade-own:var(--edge-shade-mid)]",
@@ -28,27 +27,15 @@ const themes = {
   },
 } as const;
 
-// The intro and the three ventures are stacked sheets. On desktop each one sticks to the
-// top of the screen and the next slides up over it, like pages in a briefing folder; the
-// sheet being covered sinks back and dims. It's all ordinary scrolling (CSS sticky), so
-// nothing takes over the wheel or snaps, and a trackpad, wheel or keyboard all feel the same.
-// Clipped below and at the sides, but not just above the top edge, where its shadow falls.
+// Stacked sheets: on desktop each sticks and the next slides over it (plain CSS sticky).
 const sheet = "lg:motion-safe:sticky lg:motion-safe:top-0 lg:motion-safe:h-lvh lg:motion-safe:overflow-x-clip";
-// On desktop each venture's trimmed corner is cut for real, so the sheet underneath shows
-// through as it slides over. Elsewhere the notch utility paints the colour above instead.
-// The cut's size follows the same variables as the painted corner (globals.css), so it
-// folds in on arrival and folds shut once the sheet is covered.
-// The clip reaches up past the top edge for the edge's shadow, mitred where the cut begins.
+// Desktop: the corner is a real cut, sized by the notch variables so it folds in and shuts.
 const notch =
   "lg:motion-safe:[--cut:calc(var(--notch-size)*var(--notch-in,1)*(1-var(--notch-shut,0)))] lg:motion-safe:[clip-path:polygon(0_calc(-1*var(--notch-lift)),calc(100%-var(--cut)+var(--notch-lift)*0.4142)_calc(-1*var(--notch-lift)),calc(100%-var(--cut))_0,100%_var(--cut),100%_100%,0_100%)]";
-// The intro has no real cut, only room for the shadow above.
 const introClip =
   "lg:motion-safe:[clip-path:polygon(0_calc(-1*var(--notch-lift)),100%_calc(-1*var(--notch-lift)),100%_100%,0_100%)]";
-// A real cut has no painted corner to carry its edge's shadow, so each sheet draws that
-// part for the sheet sliding over it (notch-corner-shadow, in its own top-right), moved down
-// to sit right under the arriving sheet's cut (--beneath-y, its distance from the top) and
-// travelling up with it. Until a sheet arrives it waits below the bottom edge, out of sight.
-// The straight part of the edge's shadow is the arriving sheet's own (notch, globals.css).
+// A real cut can't carry its own shadow, so the sheet beneath draws it, following the
+// arriving sheet's edge (--beneath-y).
 const shadowBeneath =
   "notch-corner-shadow pointer-events-none absolute right-0 z-1 hidden [--edge-shade:var(--edge-shade-own,var(--edge-shade-soft))] top-[calc(-1*var(--notch-lift))] [translate:0_var(--beneath-y,100lvh)] lg:motion-safe:block";
 
@@ -62,10 +49,8 @@ export function Ventures() {
 
       mm.add(`(min-width: 1024px) and ${MOTION_OK}`, () => {
         const sheets = q("[data-sheet]");
-        // While the next sheet slides up, the one beneath shrinks back a little and dims. And
-        // over the last stretch its trimmed corner folds shut: the stuck sheets share one
-        // corner, so once the new sheet settles, its own cut shows this sheet's colour rather
-        // than looking straight through every sheet below to the intro's corner.
+        // The sheet beneath shrinks and dims; its corner folds shut at the end, so the new
+        // sheet's cut shows it instead of seeing through every sheet below.
         sheets.slice(0, -1).forEach((el, i) => {
           gsap.fromTo(
             el,
@@ -84,14 +69,13 @@ export function Ventures() {
                 start: "top bottom",
                 end: "top top",
                 scrub: true,
-                invalidateOnRefresh: true, // the shadow starts a screen down
+                invalidateOnRefresh: true,
               },
             })
             .to(el.querySelector("[data-sheet-body]"), { scale: 0.92, yPercent: -3, transformOrigin: "50% 0%" }, 0)
             .to(el.querySelector("[data-shade]"), { opacity: 0.35 }, 0)
             .fromTo(el, { "--beneath-y": () => `${window.innerHeight}px` }, { "--beneath-y": "0px" }, 0);
         });
-        // Each drawing plays once its sheet is most of the way up.
         animateArt((panel) => ({
           trigger: panel,
           start: "top 25%",
@@ -99,7 +83,6 @@ export function Ventures() {
         }));
       });
 
-      // Phones and tablets: plain stacked panels, drawings triggered as they scroll in.
       mm.add(`(max-width: 1023px) and ${MOTION_OK}`, () => {
         animateArt((panel) => ({
           trigger: panel.querySelector("svg") ?? panel,
@@ -113,10 +96,7 @@ export function Ventures() {
           const tl = gsap.timeline({ scrollTrigger: trigger(panel) });
           const strokes = gsap.utils.toArray<SVGPathElement>(panel.querySelectorAll("[data-draw]"));
           const motto = panel.querySelectorAll("[data-motto]");
-          // Each stroke draws in over 1.6s, 0.12s after the one before. A path can set its
-          // own length (data-duration) or start time (data-at) in seconds, e.g. the long
-          // heartbeat line.
-          // Hidden until its turn: an undrawn stroke with round caps still shows a dot.
+          // data-duration / data-at override a stroke's timing. Hidden until drawn: a round cap shows as a dot.
           gsap.set(strokes, { drawSVG: "0%", visibility: "hidden" });
           strokes.forEach((path, i) => {
             const at = Number(path.dataset.at ?? i * 0.12);
@@ -148,8 +128,6 @@ export function Ventures() {
   );
 }
 
-// A sheet's moving parts: the body that sinks back when covered, the shade that dims it, and
-// the corner shadow it holds for the sheet that covers it.
 function Sheet({ className = "", children, ...rest }: React.ComponentProps<"div">) {
   return (
     <div data-sheet className={`${sheet} ${className}`} {...rest}>
@@ -162,11 +140,9 @@ function Sheet({ className = "", children, ...rest }: React.ComponentProps<"div"
   );
 }
 
-// The first sheet: what this part of the page is, and what's coming.
 function Intro() {
   const lenis = useLenis();
-  // A sheet's resting place: the section's top plus the sheets before it (sticky sheets
-  // report where they're stuck, so measure from the section instead).
+  // Measured from the section: a stuck sheet reports where it's stuck, not where it sits.
   const openSheet = (from: HTMLElement, index: number) => {
     const section = from.closest("section");
     if (!section) return;
@@ -205,7 +181,6 @@ function Intro() {
               {site.ventures.map((v, i) => (
                 <li key={v.id} data-lined className="relative">
                   <span data-line aria-hidden className="absolute inset-x-0 bottom-0 h-px origin-left bg-line" />
-                  {/* A contents list: each venture glides to its own sheet. */}
                   <button
                     type="button"
                     onClick={(e) => openSheet(e.currentTarget, i + 1)}
@@ -239,7 +214,6 @@ function Panel({ venture: v }: { venture: Venture }) {
       >
         <div className="mx-auto grid w-full max-w-360 flex-1 items-center gap-12 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-6">
-            {/* Eyebrow: his role in the venture, right above its name. */}
             <p className={`mb-5 text-sm font-semibold tracking-wide uppercase ${t.soft}`}>{v.kicker}</p>
             <h3 data-optical id={`${v.id}-name`} className="font-display text-[clamp(2.5rem,7.5vw,7.5rem)] uppercase">
               {v.name}
@@ -269,16 +243,13 @@ function Panel({ venture: v }: { venture: Venture }) {
   );
 }
 
-// The three venture drawings share one style: stroke-only line art in the panel's text
-// colour, each path drawn in by the panel's reveal (data-draw, see animateArt) using GSAP's
-// DrawSVG, which measures every path's real length so the stroke grows smoothly.
+// Stroke-only drawings, drawn in with DrawSVG (data-draw).
 const stroke = { "data-draw": true } as const;
 
 function Drawing({ children }: { children: React.ReactNode }) {
   return (
     <svg
       viewBox="0 0 400 320"
-      // Non-scaling strokes keep the fine line weight however large the drawing renders.
       className="w-full max-w-lg fill-none stroke-current [&_path]:[vector-effect:non-scaling-stroke]"
       strokeWidth={2}
       strokeLinecap="round"
@@ -289,7 +260,6 @@ function Drawing({ children }: { children: React.ReactNode }) {
   );
 }
 
-// AdsXcell: one phone sends a message, waves go out, and a grid of phones receive it.
 const smallPhones = [
   [250, 62],
   [320, 62],
@@ -324,7 +294,6 @@ function Broadcast() {
   );
 }
 
-// SP Design Studio: a floor plan drawing itself in, room by room.
 function FloorPlan() {
   return (
     <Drawing>
@@ -340,8 +309,7 @@ function FloorPlan() {
   );
 }
 
-// HridaySpandana ("the heart's response"): a heartbeat that loops into a heart, with a
-// small medical cross for the health camps, and the motto underneath.
+// HridaySpandana ("the heart's response").
 function Heartbeat() {
   return (
     <div>

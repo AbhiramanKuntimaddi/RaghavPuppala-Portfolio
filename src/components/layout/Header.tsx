@@ -9,8 +9,7 @@ import { scrollToSection } from "@/lib/navigate";
 import { Button } from "@/components/ui/Button";
 import { JetIcon } from "@/components/ui/Jet";
 
-// Scrollspy: the section crossing a line just above the middle of the screen. A pinned
-// section is measured by its pin spacer, which spans the whole held stretch of scroll.
+// Scrollspy line, just above mid-screen. Pinned sections are measured by their pin spacer.
 function sectionAt(line: number) {
   for (const { id } of nav) {
     const el = document.getElementById(id);
@@ -24,11 +23,7 @@ function sectionAt(line: number) {
 
 type Tone = "ink" | "paper" | null;
 
-// Which colour the page wants the header in right under it: the nearest ancestor with
-// data-header-tone of whatever sits behind the header's middle (ignoring the header).
-// Desktop only: there those sections hold still while the header is over them. On
-// smaller screens they scroll freely, so text would slide under a see-through header;
-// the cream panel stays instead.
+// The tone of whatever sits behind the header. Desktop only; smaller screens keep the cream panel.
 function toneUnder(header: HTMLElement | null): Tone {
   if (window.innerWidth < 1024) return null;
   for (const el of document.elementsFromPoint(window.innerWidth / 2, 40)) {
@@ -39,10 +34,8 @@ function toneUnder(header: HTMLElement | null): Tone {
   return null;
 }
 
-// How long the header stays after you stop scrolling up, before it tucks away again.
 const IDLE_HIDE_MS = 1500;
 
-// `about` is the one-line summary shown under each section in the mobile menu.
 const nav = [
   { id: "wealth", label: "Wealth", about: "Investments, insurance, retirement" },
   { id: "process", label: "How it works", about: "Brief, plan, review" },
@@ -51,22 +44,17 @@ const nav = [
   { id: "contact", label: "Contact", about: "Book, call, email, WhatsApp" },
 ];
 
-// Transparent over the marigold hero, a floating cream panel once scrolled, with a
-// centered nav and a short ink bar sliding under the section you're in.
 export function Header() {
   const root = useRef<HTMLElement>(null);
   const [hidden, setHidden] = useState(false);
   const [solid, setSolid] = useState(false);
   const [active, setActive] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  // Over full-colour panels the header drops its cream panel and takes the panel's
-  // text colour instead ("ink" or "paper"); null means the normal behaviour.
+  // Over full-colour sections: no cream panel, the section's tone instead (null = normal).
   const [tone, setTone] = useState<Tone>(null);
   const lenis = useLenis();
 
-  // Visibility: hidden while scrolling down past the hero, shown while scrolling up,
-  // then tucked away again once scrolling has paused, unless the header is being
-  // used (pointer over it, keyboard focus inside it, menu open) or we're at the top.
+  // Hidden scrolling down, shown scrolling up, tucked away after a pause unless in use or at the top.
   const engaged = useRef(false);
   const openRef = useRef(false);
   useEffect(() => {
@@ -79,7 +67,6 @@ export function Header() {
       if (window.scrollY > 400 && !engaged.current && !openRef.current) setHidden(true);
     }, IDLE_HIDE_MS);
   }, []);
-  // Closing the menu mid-page starts the countdown too.
   useEffect(() => {
     if (!open) scheduleHide();
   }, [open, scheduleHide]);
@@ -116,8 +103,7 @@ export function Header() {
     scheduleHide();
   };
 
-  // Entry: the bar drops in from above, then its contents settle one after another,
-  // timed to land with the hero intro. data-reveal keeps it hidden until then.
+  // Entry, timed with the hero intro.
   useGSAP(
     () => {
       gsap.matchMedia().add(MOTION_OK, () => {
@@ -131,8 +117,6 @@ export function Header() {
     { scope: root },
   );
 
-  // Exit on scroll down, re-entry on scroll up. Leaving is quick and accelerating;
-  // coming back decelerates, and the contents ripple in behind the bar.
   const shown = useRef(true);
   useGSAP(
     () => {
@@ -156,7 +140,6 @@ export function Header() {
     { dependencies: [hidden, open], scope: root },
   );
 
-  // Menu: lock the page behind it, close on Escape, return focus to the toggle.
   const toggleRef = useRef<HTMLButtonElement>(null);
   const firstLinkRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -175,7 +158,6 @@ export function Header() {
     };
   }, [open, lenis]);
 
-  // Close the menu if the viewport grows into the desktop layout.
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1280px)");
     const close = () => mq.matches && setOpen(false);
@@ -186,14 +168,12 @@ export function Header() {
   const go = useCallback(
     (id: string) => () => {
       setOpen(false);
-      // Wait a frame so the menu's cleanup has restarted Lenis before scrolling.
+      // Next frame: the menu's cleanup restarts Lenis first.
       requestAnimationFrame(() => scrollToSection(id, lenis));
     },
     [lenis],
   );
 
-  // Once scrolled (or with the menu open) the header floats as an inset cream panel.
-  // With the menu open the header sits straight on its ink sheet: no cream panel, cream type.
   const solidBar = solid && !open;
   const blend: Tone = open ? "paper" : tone;
 
@@ -209,8 +189,6 @@ export function Header() {
         className={`fixed inset-x-0 top-0 z-50 transition-colors duration-500 ${blend === "paper" ? "text-paper" : "text-ink"}`}
       >
         <div className="relative mx-auto max-w-360 px-2 sm:px-4">
-          {/* The floating panel: notched like the buttons, a hairline edge and a soft
-              shadow. Fades and settles into place. */}
           <span
             aria-hidden
             className={`pointer-events-none absolute inset-x-2 inset-y-2 drop-shadow-[0_12px_28px_oklch(0.2_0.02_55/0.16)] transition-[opacity,translate] duration-500 ease-out-expo sm:inset-x-4 ${
@@ -278,13 +256,12 @@ export function Header() {
         </div>
       </header>
 
-      {/* Outside the header: the header slides with a transform, which would trap a fixed child inside it. */}
+      {/* Outside the header: its transform would trap a fixed child. */}
       <MobileMenu open={open} active={active} go={go} firstLinkRef={firstLinkRef} />
     </>
   );
 }
 
-// On hover the letters lift out of the badge and a jet climbs in to take their place.
 function Monogram({ onDark }: { onDark: boolean }) {
   const move = "transition-transform duration-500 ease-out-expo";
   return (
@@ -317,15 +294,12 @@ function DesktopNav({
   const plate = useRef<HTMLSpanElement>(null);
   const shown = useRef<string | null>(null);
 
-  // The active section sits on a notched plate in the header's own colour (ink on cream and
-  // marigold, cream over dark sections), like the credential plates; its label reverses out.
-  // The plate glides between sections, and the newly active label decodes like the eyebrows.
+  // The active link sits on a notched plate that glides between links; the new label decodes.
   useLayoutEffect(() => {
     const el = plate.current;
     const link = active ? list.current?.querySelector<HTMLElement>(`[data-nav="${active}"]`) : null;
     if (!el) return;
-    // Each move replaces any still running, so a quick show-then-hide (as the scrollspy
-    // settles while the page loads) can't leave the plate showing.
+    // overwrite, so a quick show-then-hide while the page settles can't leave it showing.
     if (!link) {
       gsap.to(el, { autoAlpha: 0, duration: 0.3, overwrite: true });
       shown.current = null;
@@ -359,8 +333,6 @@ function DesktopNav({
         />
         {nav.map((item) => {
           const current = active === item.id;
-          // Inherit the header's colour, so links read on cream, marigold and dark panels alike;
-          // the active one reverses out of its plate.
           const tone = current
             ? `${onDark ? "text-ink" : "text-paper"} hover:text-marigold focus-visible:text-marigold`
             : "text-current/60 hover:text-marigold focus-visible:text-marigold";
@@ -387,9 +359,7 @@ function DesktopNav({
   );
 }
 
-// Hover/focus: an ink bar sweeps in behind the link, like a line highlighted in a mission
-// brief, and the text turns marigold. It follows the pointer: in from the side it entered
-// on, out toward the side it left by (see lib/band).
+// Hover/focus band follows the pointer: in from the side it entered (lib/band).
 function BriefingBand() {
   return (
     <span
@@ -412,9 +382,6 @@ function MobileMenu({
 }) {
   const panel = useRef<HTMLDivElement>(null);
 
-  // Opening: the ink sheet drops down, then the ruled list draws in row by row (each rule
-  // left to right, its row rising just behind it), then the buttons and hours. Closing
-  // runs it back: the rows lift away, then the sheet rises.
   useGSAP(
     () => {
       const el = panel.current!;
@@ -459,7 +426,6 @@ function MobileMenu({
       aria-hidden={!open}
       inert={!open}
       data-lenis-prevent
-      // The bottom-right corner is trimmed like the buttons; it shows as the sheet moves.
       className="invisible fixed inset-0 z-40 flex flex-col overflow-y-auto bg-ink px-4 pt-24 pb-8 text-paper [clip-path:polygon(0_0,100%_0,100%_calc(100%-40px),calc(100%-40px)_100%,0_100%)] sm:px-8 lg:pt-28 xl:hidden"
     >
       <nav aria-label="Menu">
@@ -482,7 +448,6 @@ function MobileMenu({
                   aria-current={current ? "location" : undefined}
                   className="group flex w-full cursor-pointer items-center gap-3 py-3.5 text-left sm:py-4"
                 >
-                  {/* The section you're in: a marigold bar, and its name in marigold. */}
                   {current && <span aria-hidden className="w-1 self-stretch bg-marigold" />}
                   <span
                     className={`font-display text-[clamp(2rem,9vw,3.5rem)] uppercase transition-colors duration-300 group-hover:text-marigold group-focus-visible:text-marigold ${

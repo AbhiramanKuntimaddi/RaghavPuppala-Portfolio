@@ -4,8 +4,7 @@ import { ReactLenis, useLenis, type LenisRef } from "lenis/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
-// Lenis drives the scroll, GSAP's ticker drives Lenis, and ScrollTrigger
-// listens to Lenis. One clock, so pinned sections never drift.
+// GSAP's ticker drives Lenis, which drives ScrollTrigger: one clock, so pins never drift.
 export function SmoothScroll({ children }: { children: ReactNode }) {
   const lenisRef = useRef<LenisRef>(null);
   const [reduced, setReduced] = useState(false);
@@ -18,8 +17,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     return () => mq.removeEventListener("change", sync);
   }, []);
 
-  // ReactLenis creates its instance after this component mounts, so read the
-  // ref on every tick instead of once.
+  // The Lenis instance appears after mount, so read the ref each tick.
   useEffect(() => {
     const update = (time: number) => lenisRef.current?.lenis?.raf(time * 1000);
     gsap.ticker.add(update);
@@ -27,11 +25,8 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     return () => gsap.ticker.remove(update);
   }, []);
 
-  // Web fonts change heading heights (and SplitText re-splits) after first layout;
-  // re-measure every trigger once they land so pins and the header's scrollspy line up.
-  // And once more after the page has loaded and the browser has settled, which on iOS
-  // includes the toolbar taking its final height. On touch devices the resize that would
-  // otherwise correct this is ignored (lib/gsap.ts), so it has to be asked for.
+  // Re-measure after fonts load and once the page settles (iOS toolbar). Touch resizes are
+  // ignored (lib/gsap.ts), so it has to be asked for.
   useEffect(() => {
     let cancelled = false;
     let timer = 0;

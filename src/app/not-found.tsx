@@ -5,16 +5,12 @@ import { DocumentTitle } from "@/components/ui/DocumentTitle";
 import { Headline } from "@/components/ui/Headline";
 import { HoldingPattern } from "@/components/ui/HoldingPattern";
 
-// The 404 page, for any address the site doesn't have. Marigold like the hero, with the
-// trimmed ink corner, the RP badge back to the homepage, and the jet circling a holding
-// pattern beside a way back on course.
 export default function NotFound() {
   return (
     <>
-      {/* The 404 page can't export metadata, so its tab title is set on the page. */}
+      {/* not-found can't export metadata. */}
       <DocumentTitle title={`Page not found · ${site.name}`} />
       <main className="relative flex min-h-dvh flex-col overflow-clip bg-marigold text-ink">
-        {/* The site's trimmed top-right corner, in ink (as on the preloader). */}
         <span
           aria-hidden
           className="absolute top-0 right-0 z-10 size-(--notch-size) bg-ink [clip-path:polygon(0_0,100%_0,100%_100%)]"
@@ -63,7 +59,6 @@ export default function NotFound() {
           </div>
         </section>
 
-        {/* The error code, too big for the page, faint behind everything and off the bottom edge. */}
         <p
           aria-hidden
           className="pointer-events-none absolute right-0 bottom-0 translate-y-[18%] font-display text-[32vw] leading-[0.8] text-ink/[0.06] select-none lg:text-[24vw]"

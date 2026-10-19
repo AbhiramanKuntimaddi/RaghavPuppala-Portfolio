@@ -1,5 +1,4 @@
-// Single source of truth for every word on the site.
-// The old site repeated this across four pages; edit it here once.
+// Every word on the site.
 
 const whatsappNumber = "917355366366";
 
@@ -23,11 +22,10 @@ export const site = {
     days: { short: "Mon - Fri", long: "Monday - Friday" },
     hours: "9 AM - 5 PM",
     demat: "http://p.njw.bz/99909",
-    // His free 30-minute online Financial Fitness Session, booked on Calendly.
     booking: { label: "Book a free session", href: "https://calendly.com/raghavpuppala_financial_advisor/30min" },
   },
 
-  // The free first session, as Raghav describes it: 30 minutes, online, no obligation.
+  // His free first session, as on his flyer.
   session: {
     name: "Financial fitness session",
     covers: [
@@ -48,8 +46,7 @@ export const site = {
     alt: "Raghav Puppala smiling at a café table, in glasses and a navy and white sweater",
   },
 
-  // The credentials band under the hero.
-  // `count` makes a value tick up from zero; the rest decode letter by letter.
+  // `count` ticks a value up from zero; the rest decode letter by letter.
   credentials: [
     { value: "500+", count: 500, suffix: "+", label: "Families guided" },
     { value: "15+", count: 15, suffix: "+", label: "Years experience" },
@@ -60,9 +57,7 @@ export const site = {
 
   hero: {
     headline: ["Your money,", "planned like", "a mission."],
-    // The intro, in pieces so the hero can set the name and credentials apart. Two lines:
-    // the first ("I'm Raghav Puppala, an Indian Air Force veteran") stays on one line from
-    // sm up; on phones the whole sentence wraps naturally.
+    // Two lines: the first stays whole from sm up; on phones it all wraps.
     lead: [
       [
         { text: "I'm " },
@@ -91,13 +86,6 @@ export const site = {
       title: "Review",
       body: "Markets move and lives change. We check the plan together regularly, and whenever something big happens.",
     },
-  ],
-
-  // His appointments with the insurers he advises for (from the old About page).
-  affiliations: [
-    { org: "HDFC Life", role: "Executive Wealth Planner" },
-    { org: "Star Health Insurance", role: "Health Insurance Advisor" },
-    { org: "TATA AIG", role: "General Insurance Advisor" },
   ],
 
   practice: [
@@ -141,7 +129,6 @@ export const site = {
       name: "AdsXcell",
       kicker: "IT & advertising since 2009",
       body: "Bulk SMS and WhatsApp campaigns that put a business's message on thousands of phones at once, and TallyPrime accounting as an authorised Tally partner: new licences, renewals and customisation.",
-      // From adsxcell.com: its own client count, and two clients who've written in.
       proof: "500+ businesses and 200+ individuals served, including teams at Panasonic India and D'sire Exhibitions.",
       offerings: ["Bulk SMS", "Bulk WhatsApp", "TallyPrime"],
       cta: { label: "Visit adsxcell.com", href: "https://adsxcell.com" },

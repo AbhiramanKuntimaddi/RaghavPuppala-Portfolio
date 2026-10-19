@@ -4,33 +4,32 @@ import { useRef, type CSSProperties } from "react";
 import { bandHandlers, bandOrigin } from "@/lib/band";
 import { gsap, useGSAP } from "@/lib/gsap";
 
-// Colors per surface. `fill` rises on hover, so it must contrast with both the
-// button and whatever the button sits on.
+// Per surface. `fill` rises on hover, so it must contrast with the button and the surface.
 const variants = {
-  // Ink button on a marigold surface: hover fills with paper.
+  // on marigold
   ink: { bg: "var(--color-ink)", fg: "var(--color-paper)", fill: "var(--color-paper)", fillFg: "var(--color-ink)" },
-  // Ink button on a paper surface: hover fills with marigold.
+  // on paper
   "ink-on-paper": {
     bg: "var(--color-ink)",
     fg: "var(--color-paper)",
     fill: "var(--color-marigold)",
     fillFg: "var(--color-ink)",
   },
-  // Header: sits on marigold at the top and on paper once scrolled.
+  // header: marigold at the top, paper once scrolled
   header: {
     bg: "var(--color-ink)",
     fg: "var(--color-paper)",
     fill: "var(--color-marigold-deep)",
     fillFg: "var(--color-ink)",
   },
-  // Marigold button on an ink surface (the scrolled header, the mobile menu).
+  // on ink
   marigold: {
     bg: "var(--color-marigold)",
     fg: "var(--color-ink)",
     fill: "var(--color-paper)",
     fillFg: "var(--color-ink)",
   },
-  // Secondary button on marigold: an ink outline, filled with ink on hover.
+  // outline on marigold
   outline: {
     bg: "var(--color-ink)",
     fg: "var(--color-ink)",
@@ -38,15 +37,22 @@ const variants = {
     fillFg: "var(--color-marigold)",
     inner: "var(--color-marigold)",
   },
-  // Secondary button on the calculator's paper: an ink outline, filled with ink on hover.
+  // outline on the calculator's paper
   "outline-on-paper": {
+    bg: "var(--color-ink)",
+    fg: "var(--color-ink)",
+    fill: "var(--color-ink)",
+    fillFg: "var(--color-paper)",
+    inner: "var(--color-paper)",
+  },
+  "outline-on-paper-2": {
     bg: "var(--color-ink)",
     fg: "var(--color-ink)",
     fill: "var(--color-ink)",
     fillFg: "var(--color-paper)",
     inner: "var(--color-paper-2)",
   },
-  // Secondary button on ink (the mobile menu): a cream outline, filled with cream on hover.
+  // outline on ink
   "outline-on-ink": {
     bg: "var(--color-paper)",
     fg: "var(--color-paper)",
@@ -94,17 +100,13 @@ type Props = {
   size?: keyof typeof sizes;
   external?: boolean;
   className?: string;
-  /** Shorter label for phones, when the full one won't fit. */
+  /** Shorter label for phones. */
   shortLabel?: string;
-  /** Drop the arrow cell below `sm`, for tight spots like the phone header. */
+  /** Drop the arrow cell below `sm`. */
   compactOnMobile?: boolean;
-  /** For a button that opens something on the page (WhatsAppButton's QR card). */
   onClick?: React.MouseEventHandler<HTMLAnchorElement>;
 } & Pick<React.AriaAttributes, "aria-haspopup" | "aria-expanded" | "aria-controls">;
 
-// Squared button with one clipped corner. On hover a briefing band sweeps across
-// behind the label and the arrow launches out of its cell. On mouse devices it leans
-// toward the cursor.
 export function Button({
   href,
   children,
@@ -169,17 +171,14 @@ export function Button({
       style={style}
       className={`group relative inline-flex shrink-0 items-stretch font-bold tracking-[0.06em] whitespace-nowrap uppercase font-condensed text-(--btn-fg) transition-colors duration-300 hover:text-(--btn-fill-fg) focus-visible:text-(--btn-fill-fg) ${s.box} ${className}`}
     >
-      {/* Background and hover fill live on a clipped layer so the focus ring isn't clipped too. */}
+      {/* Clipped layer, so the focus ring isn't clipped. */}
       <span
         aria-hidden
         className="absolute inset-0 overflow-clip bg-(--btn-bg) [clip-path:polygon(0_0,calc(100%-var(--btn-notch))_0,100%_var(--btn-notch),100%_100%,0_100%)]"
       >
-        {/* Outline buttons: the surface colour inset by the stroke width, notch included. */}
         {v.inner && (
           <span className="absolute inset-0.5 bg-(--btn-inner) [clip-path:polygon(0_0,calc(100%-var(--btn-notch)+1px)_0,100%_calc(var(--btn-notch)-1px),100%_100%,0_100%)]" />
         )}
-        {/* Briefing band, as on the header links: the fill sweeps in from the side the
-            pointer entered on and out toward the side it left by (see lib/band). */}
         <span
           className={`absolute inset-0 scale-x-0 bg-(--btn-fill) transition-transform duration-500 ease-out-expo group-hover:scale-x-100 group-focus-visible:scale-x-100 ${bandOrigin}`}
         />

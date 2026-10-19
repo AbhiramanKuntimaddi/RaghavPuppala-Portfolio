@@ -1,11 +1,7 @@
 "use client";
 
-// Optical alignment for large type. Every glyph carries a little built-in space on its left
-// (its side bearing): about 5.6% of the font size for straight stems like L, P and H in the
-// display face, around 3.5% for round letters, and almost none for A or Y. At headline
-// sizes that's enough to make a heading look indented next to the small eyebrow above it.
-// These helpers measure the first character of each line in its real font and pull the
-// line left by exactly that much, in em, so it stays right at every size.
+// Optical alignment: pull large type left by its first glyph's side bearing (measured in its
+// real font, in em), so headings line up with the small text above them.
 
 const STRETCH = [
   [50, "ultra-condensed"],
@@ -17,8 +13,7 @@ const STRETCH = [
   [125, "expanded"],
 ] as const;
 
-// Canvas only takes keyword widths, so use the nearest one (the display face's 72% is
-// measured as 75%, which moves its bearings by a fraction of a pixel).
+// Canvas only takes keyword widths, so the nearest one (72% is measured as 75%).
 export const stretchKeyword = (value: string) => {
   const n = parseFloat(value);
   if (Number.isNaN(n)) return "normal";
@@ -28,13 +23,11 @@ export const stretchKeyword = (value: string) => {
 const cache = new Map<string, { bearing: number; advance: number }>();
 let ctx: CanvasRenderingContext2D | null = null;
 
-// The first character of an element's text, measured in its own font, in em. An element
-// whose text animates (a counter) can name its final text in data-optical-text.
+// data-optical-text names the final text of an element that animates (a counter).
 function measure(el: Element) {
   const text = (el as HTMLElement).dataset?.opticalText ?? el.textContent ?? "";
   const cs = getComputedStyle(el);
-  // Measure the glyph that's actually drawn: headings are often typed in lower case and
-  // set in capitals with CSS.
+  // Measure what's drawn: CSS may set lower-case text in capitals.
   const first = text.trimStart().charAt(0);
   const ch =
     cs.textTransform === "uppercase"
@@ -56,19 +49,16 @@ function measure(el: Element) {
     bearing: Math.max(0, -m.actualBoundingBoxLeft) / 1000,
     advance: m.width / 1000,
   };
-  // Only remember measurements taken in the real font, not a fallback still loading.
+  // Only cache measurements taken in the real font.
   if (document.fonts.check(ctx.font)) cache.set(key, result);
   return result;
 }
 
-// Pull each element left by its first glyph's side bearing (for lines of a heading, or a
-// single-line heading).
 export function alignOptically(els: Iterable<Element>) {
   for (const el of els) (el as HTMLElement).style.marginLeft = `${-measure(el).bearing}em`;
 }
 
-// Hang an opening quote mark into the margin, so the first word lines up instead. Put
-// data-hang on an inline element holding just the mark.
+// Hang an opening quote mark (data-hang) into the margin, so the first word lines up.
 export function hangPunctuation(els: Iterable<Element>) {
   for (const el of els) (el as HTMLElement).style.marginLeft = `${-measure(el).advance}em`;
 }
