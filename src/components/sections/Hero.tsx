@@ -216,17 +216,18 @@ export function Hero() {
             <p
               data-eyebrow
               data-reveal
-              className="mb-6 text-sm font-semibold tracking-wide uppercase lg:mb-8 short:mb-5"
+              className="mb-6 text-sm font-semibold tracking-wide uppercase lg:mb-10 short:mb-5"
             >
               {site.role} · {site.city}
             </p>
+            {/* Sized so the longest line ("Your finances,", about 6.4em wide) fits its column with room before the portrait. */}
             <h1
               data-headline
               data-reveal
-              className="font-display text-[clamp(3.5rem,15vw,5.5rem)] uppercase sm:text-[clamp(4rem,10vw,7rem)] lg:text-[clamp(5rem,8.2vw,9rem)] short:text-[clamp(4rem,min(8.2vw,12svh),9rem)]"
+              className="font-display text-[min(14vw,5.5rem)] uppercase sm:text-[clamp(4rem,10vw,7rem)] leading-[0.92] lg:text-[clamp(5rem,7.2vw,7.75rem)] short:text-[clamp(4rem,min(7.2vw,11svh),7.75rem)]"
             >
               {site.hero.headline.map((line) => (
-                <span key={line} className="block">
+                <span key={line} className="block whitespace-nowrap">
                   {line}
                 </span>
               ))}
@@ -234,7 +235,7 @@ export function Hero() {
             <p
               data-lead
               data-reveal
-              className="mt-8 max-w-[46ch] text-[1.1875rem] leading-[1.55] text-pretty text-ink/80 sm:text-[1.3125rem] lg:mt-10 short:mt-6"
+              className="mt-8 max-w-[46ch] text-[1.1875rem] leading-[1.6] text-pretty text-ink/80 sm:text-[1.3125rem] lg:mt-12 short:mt-6"
             >
               {site.hero.lead.map((line, i) => (
                 <span key={i} className={i === 0 ? "sm:block sm:whitespace-nowrap" : undefined}>
@@ -253,7 +254,11 @@ export function Hero() {
                 </span>
               ))}
             </p>
-            <div data-actions data-reveal className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 short:mt-6">
+            <div
+              data-actions
+              data-reveal
+              className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 lg:mt-10 short:mt-6"
+            >
               <Button href={site.contact.booking.href} external>
                 {site.contact.booking.label}
               </Button>

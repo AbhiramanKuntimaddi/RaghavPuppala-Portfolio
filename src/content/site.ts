@@ -56,7 +56,7 @@ export const site = {
   ],
 
   hero: {
-    headline: ["Your money,", "planned like", "a mission."],
+    headline: ["Your finances,", "planned like", "a mission."],
     // Two lines: the first stays whole from sm up; on phones it all wraps.
     lead: [
       [
