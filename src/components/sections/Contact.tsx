@@ -148,7 +148,7 @@ function Row({ via, when, children }: { via: string; when: React.ReactNode; chil
       <p data-scramble className="text-sm font-semibold tracking-[0.12em] uppercase">
         {via}
       </p>
-      <div className="col-span-2 min-w-0 md:order-none md:col-span-1 max-md:order-last">{children}</div>
+      <div className="col-span-2 min-w-0 md:order-0 md:col-span-1 max-md:order-last">{children}</div>
       <p
         data-scramble
         className="text-right text-xs font-semibold tracking-[0.12em] text-marigold/80 uppercase tabular"

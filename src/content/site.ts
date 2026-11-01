@@ -13,6 +13,23 @@ export const site = {
   description:
     "MDRT-qualified financial advisor in Hyderabad, helping families protect, build and grow wealth with clarity and confidence. 15+ years of experience, 500+ families guided, and an Indian Air Force veteran.",
 
+  seo: {
+    title: "Raghav Puppala · Financial advisor in Hyderabad",
+    keywords: [
+      "financial advisor in Hyderabad",
+      "mutual fund distributor Hyderabad",
+      "SIP investment advisor",
+      "insurance advisor Hyderabad",
+      "retirement planning",
+      "child education planning",
+      "MDRT financial advisor",
+      "free financial planning session",
+      "Raghav Puppala",
+    ],
+    // Hyderabad city centre; the office address isn't published.
+    geo: { latitude: 17.385, longitude: 78.4867 },
+  },
+
   contact: {
     phones: [
       { display: "+91 73553 66366", href: "tel:+917355366366" },

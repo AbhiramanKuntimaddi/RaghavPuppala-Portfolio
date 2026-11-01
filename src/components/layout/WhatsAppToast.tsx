@@ -72,7 +72,7 @@ export function WhatsAppToast() {
     <aside
       ref={root}
       aria-label="Chat with Raghav on WhatsApp"
-      className="invisible fixed bottom-6 left-6 z-40 hidden w-[23rem] opacity-0 lg:block"
+      className="invisible fixed bottom-6 left-6 z-40 hidden w-92 opacity-0 lg:block"
     >
       <div className="flex items-center gap-4 bg-ink p-4 text-paper shadow-[0_18px_40px_-12px_oklch(0.2_0.02_55/0.45)] [clip-path:polygon(0_0,calc(100%-14px)_0,100%_14px,100%_100%,0_100%)]">
         <WhatsAppQR href={href} className="size-28 shrink-0" />

@@ -116,7 +116,7 @@ export function Footer() {
 
   return (
     <>
-      <div ref={space} aria-hidden className="h-[24rem]" />
+      <div ref={space} aria-hidden className="h-96" />
       <footer
         ref={root}
         data-header-tone="paper"
@@ -126,7 +126,7 @@ export function Footer() {
           <p
             data-wordmark
             aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-[18%] text-center font-display text-[13.6vw] leading-[0.8] whitespace-nowrap text-paper/[0.06] uppercase select-none"
+            className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-[18%] text-center font-display text-[13.6vw] leading-[0.8] whitespace-nowrap text-paper/6 uppercase select-none"
           >
             {site.name}
           </p>

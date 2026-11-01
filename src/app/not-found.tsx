@@ -61,7 +61,7 @@ export default function NotFound() {
 
         <p
           aria-hidden
-          className="pointer-events-none absolute right-0 bottom-0 translate-y-[18%] font-display text-[32vw] leading-[0.8] text-ink/[0.06] select-none lg:text-[24vw]"
+          className="pointer-events-none absolute right-0 bottom-0 translate-y-[18%] font-display text-[32vw] leading-[0.8] text-ink/6 select-none lg:text-[24vw]"
         >
           404
         </p>

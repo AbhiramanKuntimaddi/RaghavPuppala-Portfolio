@@ -6,6 +6,7 @@ import { Flourishes } from "@/components/layout/Flourishes";
 import { OpticalAlign } from "@/components/layout/OpticalAlign";
 import { Preloader } from "@/components/layout/Preloader";
 import { PRELOADED_KEY } from "@/lib/preloader";
+import { schema } from "@/lib/schema";
 import { SmoothScroll } from "@/components/layout/SmoothScroll";
 import { site } from "@/content/site";
 import "./globals.css";
@@ -31,33 +32,29 @@ const labConfig: DesignLabConfig = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
-  title: `${site.name} · ${site.role} in ${site.city}`,
+  title: { default: site.seo.title, template: `%s · ${site.name}` },
   description: site.description,
+  keywords: [...site.seo.keywords],
+  applicationName: site.name,
+  authors: [{ name: site.name, url: site.url }],
+  creator: site.name,
+  category: "finance",
+  alternates: { canonical: "/" },
+  robots: { index: true, follow: true, googleBot: { "max-image-preview": "large", "max-snippet": -1 } },
+  formatDetection: { telephone: true, email: true },
   openGraph: {
-    title: site.name,
+    title: site.seo.title,
     description: site.description,
     url: site.url,
     siteName: site.name,
     locale: "en_IN",
     type: "website",
   },
+  twitter: { card: "summary_large_image", title: site.seo.title, description: site.description },
 };
 
 export const viewport: Viewport = {
   themeColor: "#f5b82e",
-};
-
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "FinancialService",
-  name: site.name,
-  description: site.description,
-  url: site.url,
-  email: site.contact.email,
-  telephone: site.contact.phones[0].href.replace("tel:", ""),
-  areaServed: site.city,
-  address: { "@type": "PostalAddress", addressLocality: site.city, addressCountry: "IN" },
-  sameAs: site.socials.map((s) => s.href),
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -79,7 +76,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <OpticalAlign />
           <Cuts />
         </SmoothScroll>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
         {process.env.NODE_ENV === "development" && <DesignLab config={labConfig} />}
       </body>
     </html>
